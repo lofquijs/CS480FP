@@ -1,0 +1,5 @@
+/.metadata/
+# ignore .str, .geo, and .gps files
+*.str
+*.geo
+*.gps
