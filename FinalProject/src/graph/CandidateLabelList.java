@@ -9,9 +9,9 @@ import feature.StreetSegment;
  * 
  * @author Andrew Hansen
  * 
- * This work complies with the JMU Honor Code.
+ *         This work complies with the JMU Honor Code.
  */
-public class CandidateLabelList extends AbstractLabelManager implements CandidateLabelManager 
+public class CandidateLabelList extends AbstractLabelManager implements CandidateLabelManager
 {
   public static final String NEWEST = "N";
   public static final String OLDEST = "O";
@@ -20,8 +20,11 @@ public class CandidateLabelList extends AbstractLabelManager implements Candidat
 
   /**
    * Explicit Constructor.
-   * @param policy -> Whether this object selects the newest or oldest candidate
-   * @param networkSize -> The size of the network
+   * 
+   * @param policy
+   *          -> Whether this object selects the newest or oldest candidate
+   * @param networkSize
+   *          -> The size of the network
    */
   public CandidateLabelList(final String policy, final int networkSize)
   {
@@ -52,14 +55,29 @@ public class CandidateLabelList extends AbstractLabelManager implements Candidat
   public Label getCandidateLabel()
   {
     // TODO Auto-generated method stub
-    if (candidates.isEmpty()) return null;
-    
+    if (candidates.isEmpty())
+      return null;
+
     int id;
     if (policy.equals(NEWEST))
       id = candidates.removeLast();
     else
       id = candidates.removeFirst();
     return getLabel(id);
+  }
+
+  @Override
+  public List<Label> getAllCandidates()
+  {
+    if (candidates.isEmpty())
+      return null;
+    
+    List<Label> result = new ArrayList<Label>();
+    for (Integer i : candidates)
+    {
+      result.add(getLabel(i));
+    }
+    return result;
   }
 
 }

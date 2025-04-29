@@ -1,5 +1,7 @@
 package graph;
 
+import java.util.List;
+
 /**
  * Interfaced used for the CandidateLabelList Class.
  * 
@@ -14,4 +16,10 @@ public interface CandidateLabelManager extends LabelManager
    * @return appropriate candidate label
    */
   public abstract Label getCandidateLabel();
+  
+  /**
+   * Method used to get all candidates.
+   * @return List of all candidate labels.
+   */
+  public abstract List<Label> getAllCandidates();
 }
