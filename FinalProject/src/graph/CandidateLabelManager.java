@@ -2,6 +2,8 @@ package graph;
 
 import java.util.List;
 
+import feature.StreetSegment;
+
 /**
  * Interfaced used for the CandidateLabelList Class.
  * 
@@ -22,4 +24,5 @@ public interface CandidateLabelManager extends LabelManager
    * @return List of all candidate labels.
    */
   public abstract List<Label> getAllCandidates();
+
 }

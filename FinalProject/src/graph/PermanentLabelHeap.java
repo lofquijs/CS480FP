@@ -1,7 +1,10 @@
 package graph;
 
+import java.awt.Shape;
+import java.awt.geom.Path2D;
 import java.util.Arrays;
 import feature.StreetSegment;
+import geography.PiecewiseLinearCurve;
 
 /**
  * PermanentLabelHeap manages labels for intersections in a street network using a heap structure.
@@ -52,6 +55,37 @@ public class PermanentLabelHeap extends AbstractLabelManager implements Permanen
 
     double newValue = tailLabel.getValue() + segment.getLength();
 
+    if (newValue < headLabel.getValue())
+    {
+      headLabel.adjustValue(newValue, segment);
+      if (positions[headId] == -1)
+      {
+        insert(headId);
+      }
+      else
+      {
+        decreaseKey(positions[headId]);
+      }
+    }
+  }
+
+  /**
+   * Adjust the head label of the provided street segment based on euclidean distance.
+   * 
+   * @param segment
+   *          the street segment for updating
+   */
+  public void adjustStarValue(final StreetSegment segment, final StreetSegment destination)
+  {
+    int headId = segment.getHead();
+
+    Label headLabel = getLabel(headId);
+    
+    Path2D.Double plc = (Path2D.Double) segment.getGeographicShape().getShape();
+    Path2D.Double dest = (Path2D.Double) destination.getGeographicShape().getShape();
+    double newValue = getLabel(segment.getTail()).getValue()
+        + plc.getCurrentPoint().distance(dest.getCurrentPoint());
+    
     if (newValue < headLabel.getValue())
     {
       headLabel.adjustValue(newValue, segment);
