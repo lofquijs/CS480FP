@@ -35,9 +35,7 @@ import gps.GPGGASentence;
 import gps.GPSObserver;
 import gps.GPSReaderTask;
 import gps.GPSSimulator;
-import graph.CandidateLabelList;
-import graph.CandidateLabelManager;
-import graph.LabelCorrectingAlgorithm;
+import graph.*;
 import graph.PathFindingWorker;
 import graph.ShortestPathAlgorithm;
 import graph.StreetNetwork;
@@ -64,6 +62,10 @@ public class FPApp
   private static final String EXIT = "Exit";
   private static final String DESTINATION = "Destination";
   private static final String ORIGIN = "Origin";
+  private static final String ASTAR = "A*";
+  private static final String BELLMANFORD = "BellmanFord";
+  private static final String DIJKSTRA = "Dijkstra";
+  private static final String CORRECTING = "Correcting";
 
   private static final String TAB = "\t";
 
@@ -73,6 +75,8 @@ public class FPApp
   private int mode;
   private JFrame frame;
   private ShortestPathAlgorithm alg;
+  private PermanentLabelManager pLabels;
+  private CandidateLabelManager cLabels;
   private PathFindingWorker task;
   private StreetSegment originSegment, destinationSegment;
   private StreetNetwork network;
@@ -140,6 +144,22 @@ public class FPApp
       menuBar.add(menu);
 
       item = new JMenuItem(CALCULATE);
+      item.addActionListener(this);
+      menu.add(item);
+      
+      menu = new JMenu("Algorithm");
+      menuBar.add(menu);
+      
+      item = new JMenuItem(ASTAR);
+      item.addActionListener(this);
+      menu.add(item);
+      item = new JMenuItem(BELLMANFORD);
+      item.addActionListener(this);
+      menu.add(item);
+      item = new JMenuItem(DIJKSTRA);
+      item.addActionListener(this);
+      menu.add(item);
+      item = new JMenuItem(CORRECTING);
       item.addActionListener(this);
       menu.add(item);
 
@@ -244,18 +264,24 @@ public class FPApp
         dialog.setVisible(true);
       }
     }
+    
+    if(ac.equals(ASTAR)) {
+      pLabels = new PermanentLabelHeap(5, network.size());
+      alg = new AStar(pLabels);
+    }else if(ac.equals(BELLMANFORD)) {
+      cLabels = new CandidateLabelList(CandidateLabelList.NEWEST, network.size());
+      alg = new BellmanFord(cLabels);
+    }else if (ac.equals(DIJKSTRA)) {
+      pLabels = new PermanentLabelHeap(5, network.size());
+      alg = new LabelSettingAlgorithm(pLabels);
+    }else if (ac.equals(CORRECTING)) {
+      cLabels = new CandidateLabelList(CandidateLabelList.NEWEST, network.size());
+      alg = new LabelCorrectingAlgorithm(cLabels);
+    }
 
     if (ac.equals(CALCULATE))
     {
-
-      // TODO PICK AND CONSTRUCT ALGORITHM BASED OFF A DROP DOWN MENU IN THE GUI
-      // PermanentLabelManager labels = new PermanentLabelHeap(5, network.size());
-      // alg = new LabelSettingAlgorithm(labels);
-
-      // CandidateLabelManager labels = new CandidateLabelList(CandidateLabelList.NEWEST,
-      // network.size());
-      // alg = new LabelCorrectingAlgorithm(labels);
-
+      
       // Construct the SwingWorker
       task = new PathFindingWorker(alg, originSegment.getHead(), destinationSegment.getHead(),
           network, document, panel);
