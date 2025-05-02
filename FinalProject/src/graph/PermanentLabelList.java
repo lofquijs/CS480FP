@@ -52,4 +52,10 @@ public class PermanentLabelList extends AbstractLabelManager implements Permanen
     labels[intersectionID].makePermanent();
   }
 
+@Override
+public void adjustStarValue(StreetSegment segment, StreetSegment destination) {
+	// TODO Auto-generated method stub
+	
+}
+
 }

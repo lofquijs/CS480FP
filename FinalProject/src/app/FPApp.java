@@ -87,6 +87,7 @@ public class FPApp
    */
   public FPApp()
   {
+	  textArea = new JTextArea();
     // nope
   }
 
