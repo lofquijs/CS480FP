@@ -42,6 +42,7 @@ import graph.StreetNetwork;
 import gui.BackgroundTaskDialog;
 import gui.CartographyDocument;
 import gui.CartographyPanel;
+import gui.DynamicCartographyPanel;
 import gui.GeocodeDialog;
 import gui.StreetSegmentCartographer;
 
@@ -52,7 +53,7 @@ import gui.StreetSegmentCartographer;
  * @version 1.0
  */
 public class FPApp
-    implements ActionListener, Runnable, GPSObserver, StreetSegmentObserver, PropertyChangeListener
+    implements ActionListener, Runnable, StreetSegmentObserver, PropertyChangeListener
 {
   private static final int SET_DESTINATION = 0;
   private static final int SET_ORIGIN = 1;
@@ -70,6 +71,7 @@ public class FPApp
   private static final String TAB = "\t";
 
   private CartographyPanel<StreetSegment> panel;
+  private DynamicCartographyPanel<StreetSegment> dynamicPanel;
   private CartographyDocument<StreetSegment> document;
   private GeocodeDialog dialog;
   private int mode;
@@ -113,6 +115,10 @@ public class FPApp
       System.out.println("Read the .str file");
 
       panel = new CartographyPanel<StreetSegment>(document, new StreetSegmentCartographer());
+      
+      // Use this to get simulator working. Will work on GPS itself later.
+      // dynamicPanel = new DynamicCartographyPanel<StreetSegment>(document,
+      //     new StreetSegmentCartographer(), proj);
       frame = new JFrame("Map");
       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       frame.setSize(600, 600);
@@ -164,7 +170,7 @@ public class FPApp
       item.addActionListener(this);
       menu.add(item);
 
-      frame.setContentPane(panel);
+      frame.setContentPane(panel); //Switch to dynamicPanel to see the GPS Sim
       frame.setVisible(true);
 
       Geocoder geocoder = new Geocoder(geographicShapes, document, streets);
@@ -178,9 +184,11 @@ public class FPApp
 
       // Setup the GPSReaderTask
       GPSReaderTask gpsReader = new GPSReaderTask(is, "GPGGA");
-      gpsReader.addGPSObserver(this);
+      gpsReader.addGPSObserver(dynamicPanel);
       frame.setVisible(true);
       gpsReader.execute();
+
+      frame.setVisible(true);
     }
     catch (IOException ioe)
     {
@@ -305,17 +313,6 @@ public class FPApp
       frame.dispose();
       System.exit(0);
     }
-  }
-
-  @Override
-  public void handleGPSData(String sentence)
-  {
-    GPGGASentence gpgga = GPGGASentence.parseGPGGA(sentence);
-    if (gpgga != null)
-      textArea.append(String.format("%9.6f, %9.6f", gpgga.getLongitude(), gpgga.getLatitude()));
-    else
-      textArea.append("Waiting for a fix...");
-    textArea.append("\n");
   }
 
 }

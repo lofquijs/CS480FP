@@ -27,7 +27,7 @@ public class GPSSimulator implements Runnable
   {
     keepRunning = true;
     repeat = true;
-    delay = 100;
+    delay = 10;
     controlThread = new Thread(this);
 
 
