@@ -127,29 +127,23 @@ public class MapMatcher
 		double x = km[0];
 		double y = km[1];
 		
-		ArrayList<Double> listX = new ArrayList<>(buckets.keySet());
-		Collections.sort(listX);
-		if (x > MAX_X || x < MIN_X) 
-			return null;
-		for (Double placementX : listX)
+		if (y <= MAX_Y && y >= MIN_Y && x <= MAX_X && x >= MIN_X)
 		{
-			if (x <= placementX) 
+			for (int i = 1; i <= GAP; i++)
 			{
-				HashMap<Double, LinkedList<GeographicShape>> mapY 
-				    = buckets.get(placementX);
-				ArrayList<Double> listY = new ArrayList<>(mapY.keySet());
-				Collections.sort(listY);
-				if (y > MAX_Y || y < MIN_Y) 
-					return null;
-				for (double placementY : listY)
+				double placementX = MIN_X + (RATIO_X * i);
+				if (x <= placementX)
 				{
-					if (y <= placementY)
-						return buckets.get(placementX).get(placementY);
+					for (int j = 1; j <= GAP; j++)
+					{
+						double placementY = MIN_Y + (RATIO_Y * j);
+						if (y <= placementY)
+							return buckets.get(placementX).get(placementY);
+					}
 				}
 			}
 		}
 		
-		// IT SHOULD NEVER REACH HERE!
 		return null;
 	}
 	
