@@ -5,7 +5,7 @@ import java.util.StringTokenizer;
 /**
  * Class that reads in $GPGGA Sentences.
  * 
- * @author Andrew Hansen
+ * @author Andrew Hansen, Jackson Lofquist
  * 
  * This work complies with the JMU Honor Code.
  */
@@ -58,12 +58,18 @@ public class GPGGASentence extends NMEASentence
     String stringLat = st.nextToken(); // 3855.4487
     if (!stringLat.contains(dot)) return null;
     String directionLat = st.nextToken();
-    double latitude = convertLatitude(stringLat + directionLat);
-    
+    double latitude = convertLatitude(stringLat, directionLat);
+    if ("S".equalsIgnoreCase(directionLat)) {
+      latitude = -latitude;
+    }
+
     String stringLong = st.nextToken();
     if (!stringLong.contains(dot)) return null;
     String directionLong = st.nextToken();
     double longitude = convertLongitude(stringLong + directionLong);
+    if ("W".equalsIgnoreCase(directionLong)) {
+      longitude = -longitude;
+    }
     
     return new GPGGASentence(latitude, longitude);
   }

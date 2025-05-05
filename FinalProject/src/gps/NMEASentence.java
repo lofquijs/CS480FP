@@ -3,7 +3,7 @@ package gps;
 /**
  * Class with functions to deal with NMEA Sentences.
  * 
- * @author Andrew Hansen
+ * @author Andrew Hansen, Jackson Lofquist
  * 
  * This work complies with the JMU Honor Code.
  */
@@ -35,14 +35,17 @@ public abstract class NMEASentence
    * @param latitudeString -> String representation of latitude
    * @return double representation of latitude
    */
-  public static double convertLatitude(final String latitudeString)
+  public static double convertLatitude(final String latitudeString, final String direction)
   {
     String degrees = latitudeString.substring(0, 2);
     String minutes = latitudeString.substring(2, 9);
-    String direction = latitudeString.substring(9, 10);
     double lat = Double.parseDouble(degrees) + Double.parseDouble(minutes) / 60;
-    if (direction.equals("N")) return lat;
-    return -1 * lat;
+
+    if ("S".equalsIgnoreCase(direction)) {
+      lat = -lat;
+    }
+
+    return lat;
   }
   
   /**
@@ -56,7 +59,9 @@ public abstract class NMEASentence
     String minutes = longitudeString.substring(3, 10);
     String direction = longitudeString.substring(10, 11);
     double lon = Double.parseDouble(degrees) + Double.parseDouble(minutes) / 60;
-    if (direction.equals("E")) return lon;
-    return -1 * lon;
+    if (direction.equals("W")) { 
+      return -lon;
+    }
+    return lon;
   }
 }
