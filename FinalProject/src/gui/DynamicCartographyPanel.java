@@ -9,6 +9,10 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.LinkedList;
+import java.util.Queue;
+import geography.GeographicShape;
+import geography.MapMatcher;
 import geography.MapProjection;
 import gps.GPGGASentence;
 import gps.GPSObserver;
@@ -27,6 +31,8 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
   private static final long serialVersionUID = 1L;
   private GPGGASentence gpgga;
   private MapProjection proj;
+  private MapMatcher mm;
+  private Queue<double[]> previousPath;
 
   // Used to reduce object creation.
   private double[] ll, km;
@@ -43,7 +49,8 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
    *          -> Map Projection used on other Methods.
    */
   public DynamicCartographyPanel(final CartographyDocument<T> model,
-      final Cartographer<T> cartographer, final MapProjection proj)
+      final Cartographer<T> cartographer, final MapProjection proj,
+      final MapMatcher mm)
   {
     super(model, cartographer);
     this.proj = proj;
@@ -51,6 +58,9 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
     ll = new double[2];
     pointKM = new Point2D.Double();
     pointXY = new Point2D.Double();
+    
+    this.mm = mm;
+    this.previousPath = new LinkedList<>();
   }
 
   @Override
@@ -73,6 +83,7 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
   public void paint(final Graphics g)
   {
     Rectangle2D.Double bounds = null;
+    LinkedList<GeographicShape> nearestShapes = null;
 
     if (gpgga != null)
     {
@@ -80,6 +91,33 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
       ll[1] = gpgga.getLatitude();
 
       km = proj.forward(ll);
+      
+      // Curve-to-curve matching! Somehow we must compare the arc from previousPath
+      // to GeographicShapes return from getClosestGeographicShapes. How we do this?
+      // I dunno. However, I would think you would use the path iterator on GeographicShapes.
+      // Using those double[] from path iterator, we can compare them to the double[]
+      // in previousPath. How we decide what point to be compared to what. I have no
+      // utter idea. If anyone sees this, and has an idea, let me know!
+      // Reference: https://w3.cs.jmu.edu/bernstdh/web/common/lectures/summary_map-matching_introduction.php
+      
+      // Saves last 3 kms to compare curve
+      previousPath.add(km);
+      if (previousPath.size() > 3)
+        previousPath.remove();
+      
+      nearestShapes = mm.getClosestGeographicShapes(km);
+      
+      // Loop that is used for comparison. Once we find the right candidate,
+      // we can just take the km from PathIterator (at least I would think).
+      if (nearestShapes != null)
+      {
+        for (GeographicShape shapes : nearestShapes)
+        {
+          Shape s = shapes.getShape();
+          // NOT FINISHED!
+        }
+      }
+      
       bounds = new Rectangle2D.Double(km[0] - 1.0, km[1] - 1.0, 2.0, 2.0);
       zoomStack.addFirst(bounds);
     }

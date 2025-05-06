@@ -15,11 +15,11 @@ class TestGGA
   @Test
   void TestLatConversion()
   {
-    double lat = GPGGASentence.convertLatitude("3855.4487N");
+    double lat = GPGGASentence.convertLatitude("3855.4487", "N");
     double desiredLat = 38 + (55.4487 / 60);
     assertEquals(desiredLat, lat);
     
-    lat = GPGGASentence.convertLatitude("3855.4487S");
+    lat = GPGGASentence.convertLatitude("3855.4487", "S");
     desiredLat = (38 + (55.4487 / 60)) * -1;
     assertEquals(desiredLat, lat);
   }

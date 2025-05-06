@@ -59,17 +59,11 @@ public class GPGGASentence extends NMEASentence
     if (!stringLat.contains(dot)) return null;
     String directionLat = st.nextToken();
     double latitude = convertLatitude(stringLat, directionLat);
-    if ("S".equalsIgnoreCase(directionLat)) {
-      latitude = -latitude;
-    }
 
     String stringLong = st.nextToken();
     if (!stringLong.contains(dot)) return null;
     String directionLong = st.nextToken();
     double longitude = convertLongitude(stringLong + directionLong);
-    if ("W".equalsIgnoreCase(directionLong)) {
-      longitude = -longitude;
-    }
     
     return new GPGGASentence(latitude, longitude);
   }

@@ -1,4 +1,4 @@
-package app;
+package simulator;
 
 import geography.*;
 import gui.*;
@@ -51,23 +51,23 @@ public class PA6App implements Runnable
       frame.setContentPane(panel);
       
       // Find the right serial port
-     SerialPort[] ports = SerialPort.getCommPorts();
-     String gpsPath = null;
-     for (SerialPort port:ports)
-     {
-       String description = port.getPortDescription();
-       String path = port.getSystemPortPath();
-       if (description.indexOf("GPS") >= 0) gpsPath = path;
-     }
-   
-     // Setup the serial port
-     SerialPort gps = SerialPort.getCommPort(gpsPath); 
-     gps.openPort();
-     gps.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 0, 0);
-     InputStream is = gps.getInputStream();
+//     SerialPort[] ports = SerialPort.getCommPorts();
+//     String gpsPath = null;
+//     for (SerialPort port:ports)
+//     {
+//       String description = port.getPortDescription();
+//       String path = port.getSystemPortPath();
+//       if (description.indexOf("GPS") >= 0) gpsPath = path;
+//     }
+//   
+//     // Setup the serial port
+//     SerialPort gps = SerialPort.getCommPort(gpsPath); 
+//     gps.openPort();
+//     gps.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 0, 0);
+//     InputStream is = gps.getInputStream();
       
-      // GPSSimulator gps = new GPSSimulator("rockingham.gps");
-      // InputStream is = gps.getInputStream();
+       GPSSimulator gps = new GPSSimulator("rockingham.gps");
+       InputStream is = gps.getInputStream();
       
       // Setup the GPSReaderTask
 //      GPSReaderTask gpsReader = new GPSReaderTask(is, "GPGGA");

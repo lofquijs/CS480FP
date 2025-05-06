@@ -3,8 +3,6 @@ package geography;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -43,7 +41,7 @@ public class MapMatcher
 	 * Creates the MapMatcher object and populates the buckets.
 	 * @param document -> Document that contains all geographic shapes.
 	 */
-	public MapMatcher(final CartographyDocument<GeographicShape> document) 
+	public MapMatcher(final CartographyDocument<GeographicShape> document)
 	{
 	  // Used to compare km values with future values and have the 
 	  // ability to access the geographic shape.
@@ -120,7 +118,7 @@ public class MapMatcher
 	/**
 	 * Finds the closest Geographic Shapes to the current location.
 	 * @param km -> Current location in kilometers
-	 * @return Geographic Shapes nearest desired km
+	 * @return Geographic Shapes nearest desired km (null if param is not in grid)
 	 */
 	public LinkedList<GeographicShape> getClosestGeographicShapes(final double[] km)
 	{
