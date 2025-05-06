@@ -63,7 +63,7 @@ public class GPGGASentence extends NMEASentence
     String stringLong = st.nextToken();
     if (!stringLong.contains(dot)) return null;
     String directionLong = st.nextToken();
-    double longitude = convertLongitude(stringLong + directionLong);
+    double longitude = convertLongitude(stringLong, directionLong);
     
     return new GPGGASentence(latitude, longitude);
   }

@@ -28,11 +28,11 @@ class TestGGA
   @Test
   void TestLongConverstion()
   {
-    double lon = GPGGASentence.convertLongitude("09446.0071W");
+    double lon = GPGGASentence.convertLongitude("09446.0071", "W");
     double desiredLong = -1 * (94 + (46.0071 / 60));
     assertEquals(desiredLong, lon);
     
-    lon = GPGGASentence.convertLongitude("09446.0071E");
+    lon = GPGGASentence.convertLongitude("09446.0071", "E");
     desiredLong = 94 + (46.0071 / 60);
     assertEquals(desiredLong, lon);
   }

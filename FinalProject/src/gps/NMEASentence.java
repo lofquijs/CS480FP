@@ -53,13 +53,12 @@ public abstract class NMEASentence
    * @param longitudeString -> String representation of longitude
    * @return double representation of longitude
    */
-  public static double convertLongitude(final String longitudeString)
+  public static double convertLongitude(final String longitudeString, final String direction)
   {
     String degrees = longitudeString.substring(0, 3);
     String minutes = longitudeString.substring(3, 10);
-    String direction = longitudeString.substring(10, 11);
     double lon = Double.parseDouble(degrees) + Double.parseDouble(minutes) / 60;
-    if (direction.equals("W")) { 
+    if ("W".equalsIgnoreCase(direction)) { 
       return -lon;
     }
     return lon;
