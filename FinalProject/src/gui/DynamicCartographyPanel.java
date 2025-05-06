@@ -32,7 +32,7 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
   private GPGGASentence gpgga;
   private MapProjection proj;
   private MapMatcher mm;
-  private Queue<double[]> previousPath;
+  private Queue<double[]> currentCurve;
 
   // Used to reduce object creation.
   private double[] ll, km;
@@ -60,7 +60,7 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
     pointXY = new Point2D.Double();
     
     this.mm = mm;
-    this.previousPath = new LinkedList<>();
+    this.currentCurve = new LinkedList<>();
   }
 
   @Override
@@ -101,22 +101,11 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
       // Reference: https://w3.cs.jmu.edu/bernstdh/web/common/lectures/summary_map-matching_introduction.php
       
       // Saves last 3 kms to compare curve
-      previousPath.add(km);
-      if (previousPath.size() > 3)
-        previousPath.remove();
+      currentCurve.add(km);
+      if (currentCurve.size() > 3)
+        currentCurve.remove();
       
-      nearestShapes = mm.getClosestGeographicShapes(km);
-      
-      // Loop that is used for comparison. Once we find the right candidate,
-      // we can just take the km from PathIterator (at least I would think).
-      if (nearestShapes != null)
-      {
-        for (GeographicShape shapes : nearestShapes)
-        {
-          Shape s = shapes.getShape();
-          // NOT FINISHED!
-        }
-      }
+      km = mm.mapMatch(currentCurve);
       
       bounds = new Rectangle2D.Double(km[0] - 1.0, km[1] - 1.0, 2.0, 2.0);
       zoomStack.addFirst(bounds);

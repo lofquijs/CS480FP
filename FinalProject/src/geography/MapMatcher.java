@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
+
 import gui.CartographyDocument;
 
 /**
@@ -143,6 +145,13 @@ public class MapMatcher
 		}
 		
 		return null;
+	}
+	
+	public double[] mapMatch(Queue<double[]> curve)
+	{
+	  LinkedList<GeographicShape> closestShapes = getClosestGeographicShapes(curve.peek());
+	  
+	  return null;
 	}
 	
 }

@@ -117,4 +117,31 @@ public class Vector
     return times(s, v);
   }
   
+  // THIS IS VERY WRONG!
+  // a⋅(aλ−b)=0 if this is the case, then we must look for d1, d2, d3
+  // REFERENCE: https://w3.cs.jmu.edu/bernstdh/web/common/lectures/summary_analytic-geometry-2d_computation.php
+  public static double distancePointToLine(final double[] a, final double[] b, final double[] point)
+  {
+    double denominator, numerator, result;
+    double edgeCase = Math.min(distancePointToPoint(a, point), distancePointToPoint(b, point));
+    
+    numerator = ((a[1] - b[1]) * point[0]) + ((b[0] - a[0]) * point[1]) + ((a[0] * b[1]) - (b[0] * a[1]));
+    numerator = Math.abs(numerator);
+    
+//    if (numerator == 0)
+//      return edgeCase;
+    
+    denominator = Math.pow(b[1] - a[1], 2.0) + Math.pow(b[0] - a[0], 2.0);
+    denominator = Math.sqrt(denominator);
+    
+    
+    result = numerator / denominator;
+    return Math.min(result, edgeCase);
+  }
+  
+  public static double distancePointToPoint(final double[] x, final double[] y)
+  {
+    return Math.sqrt(Math.pow((x[0] - y[0]), 2) + Math.pow((x[1] - y[1]), 2));
+  }
+  
 }
