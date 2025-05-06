@@ -49,8 +49,7 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
    *          -> Map Projection used on other Methods.
    */
   public DynamicCartographyPanel(final CartographyDocument<T> model,
-      final Cartographer<T> cartographer, final MapProjection proj,
-      final MapMatcher mm)
+      final Cartographer<T> cartographer, final MapProjection proj, final MapMatcher mm)
   {
     super(model, cartographer);
     this.proj = proj;
@@ -58,7 +57,7 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
     ll = new double[2];
     pointKM = new Point2D.Double();
     pointXY = new Point2D.Double();
-    
+
     this.mm = mm;
     this.currentCurve = new LinkedList<>();
   }
@@ -91,26 +90,28 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
       ll[1] = gpgga.getLatitude();
 
       km = proj.forward(ll);
-      
+
       // Curve-to-curve matching! Somehow we must compare the arc from previousPath
       // to GeographicShapes return from getClosestGeographicShapes. How we do this?
       // I dunno. However, I would think you would use the path iterator on GeographicShapes.
       // Using those double[] from path iterator, we can compare them to the double[]
       // in previousPath. How we decide what point to be compared to what. I have no
       // utter idea. If anyone sees this, and has an idea, let me know!
-      // Reference: https://w3.cs.jmu.edu/bernstdh/web/common/lectures/summary_map-matching_introduction.php
-      
+      // Reference:
+      // https://w3.cs.jmu.edu/bernstdh/web/common/lectures/summary_map-matching_introduction.php
+
       // Saves last 3 kms to compare curve
       currentCurve.add(km);
       if (currentCurve.size() > 3)
         currentCurve.remove();
-      
-//      km = mm.mapMatch(currentCurve);
-      
+
+      // km = mm.mapMatch(currentCurve);
+
       bounds = new Rectangle2D.Double(km[0] - 1.0, km[1] - 1.0, 2.0, 2.0);
       zoomStack.addFirst(bounds);
     }
 
+    // Here I will need to pass the location of the user to super.paint() somehow: Dakota
     super.paint(g);
 
     if (gpgga != null)
