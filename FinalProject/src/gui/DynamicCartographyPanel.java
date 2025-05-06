@@ -105,7 +105,7 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
       if (currentCurve.size() > 3)
         currentCurve.remove();
       
-      km = mm.mapMatch(currentCurve);
+//      km = mm.mapMatch(currentCurve);
       
       bounds = new Rectangle2D.Double(km[0] - 1.0, km[1] - 1.0, 2.0, 2.0);
       zoomStack.addFirst(bounds);
