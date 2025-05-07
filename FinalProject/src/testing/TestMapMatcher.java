@@ -15,7 +15,7 @@ import geography.GeographicShapesReader;
 import geography.MapMatcher;
 import gui.CartographyDocument;
 
-class MapMatcherTest {
+class TestMapMatcher {
 
 	@Test
 	void TestConstructor() throws FileNotFoundException {

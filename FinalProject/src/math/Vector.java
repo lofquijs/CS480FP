@@ -117,28 +117,44 @@ public class Vector
     return times(s, v);
   }
   
-  // THIS IS VERY WRONG!
-  // a⋅(aλ−b)=0 if this is the case, then we must look for d1, d2, d3
-  // REFERENCE: https://w3.cs.jmu.edu/bernstdh/web/common/lectures/summary_analytic-geometry-2d_computation.php
+  /**
+   * Finding distance from Point to Line.
+   * @param a -> First Line Coordinates
+   * @param b -> Second Line Coordinates
+   * @param point -> Point Coordinates
+   * @return distance from Point to Line
+   */
   public static double distancePointToLine(final double[] a, final double[] b, final double[] point)
   {
-    double denominator, numerator, result;
-    double edgeCase = Math.min(distancePointToPoint(a, point), distancePointToPoint(b, point));
+    double d1, d2, d3;
+    boolean perpendicular;
     
-    numerator = ((a[1] - b[1]) * point[0]) + ((b[0] - a[0]) * point[1]) + ((a[0] * b[1]) - (b[0] * a[1]));
-    numerator = Math.abs(numerator);
+    d1 = distancePointToPoint(point, a);
+    d2 = distancePointToPoint(point, b);
+    d3 = distancePointToPoint(a, b);
+    perpendicular = Math.max(d1, d2) < d3;
     
-//    if (numerator == 0)
-//      return edgeCase;
+    if (perpendicular)
+    {
+      // |(a2 − b2)c1 + (b1 − a1)c2 +(a1b2 − b1a2)|
+      double numerator = ((a[1] - b[1]) * point[0]) 
+                       + ((b[0] - a[0]) * point[1]) 
+                       + ((a[0] * b[1]) - (b[0] * a[1]));
+      numerator = Math.abs(numerator);
+      
+      // ||a - b||
+      return numerator / d3;  
+    }
     
-    denominator = Math.pow(b[1] - a[1], 2.0) + Math.pow(b[0] - a[0], 2.0);
-    denominator = Math.sqrt(denominator);
-    
-    
-    result = numerator / denominator;
-    return Math.min(result, edgeCase);
+    return Math.min(d1, d2);
   }
   
+  /**
+   * Finding distance from Point to Point.
+   * @param x -> Point 1
+   * @param y -> Point 2
+   * @return distance from Point to Point
+   */
   public static double distancePointToPoint(final double[] x, final double[] y)
   {
     return Math.sqrt(Math.pow((x[0] - y[0]), 2) + Math.pow((x[1] - y[1]), 2));

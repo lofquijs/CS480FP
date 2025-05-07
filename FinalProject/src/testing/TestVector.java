@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import math.Vector;
 
-class VectorTest
+class TestVector
 {
 
   @Test
@@ -121,6 +121,21 @@ class VectorTest
     point[0] = 3;
     point[1] = 2;
     assertEquals(Vector.distancePointToLine(p1, p2, point), 0.0);
+    
+    point[0] = 5;
+    point[1] = -5;
+    assertEquals(Vector.distancePointToLine(p1, p2, point), 5);
+    
+    point[0] = 0;
+    assertEquals(Vector.distancePointToLine(p1, p2, point), Math.sqrt(2) * 5);
+    
+    point[0] = -1;
+    point[1] = -1;
+    assertEquals(Vector.distancePointToLine(p1, p2, point), Math.sqrt(2) * 3.5);
+    
+    point[0] = 0;
+    point[1] = 5;
+    assertEquals(Vector.distancePointToLine(p1, p2, point), 0);
   }
 
 }
