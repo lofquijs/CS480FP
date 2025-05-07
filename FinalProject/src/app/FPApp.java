@@ -22,8 +22,6 @@ import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
 
-import com.fazecast.jSerialComm.SerialPort;
-
 import dataprocessing.Geocoder;
 import feature.Street;
 import feature.StreetSegment;
@@ -33,7 +31,6 @@ import geography.AbstractMapProjection;
 import geography.ConicalEqualAreaProjection;
 import geography.GeographicShape;
 import geography.GeographicShapesReader;
-import geography.MapMatcher;
 import gps.GPGGASentence;
 import gps.GPSObserver;
 import gps.GPSReaderTask;
@@ -107,7 +104,6 @@ public class FPApp
       AbstractMapProjection proj = new ConicalEqualAreaProjection(-96.0, 37.5, 29.5, 45.5);
       GeographicShapesReader gsReader = new GeographicShapesReader(isgeo, proj);
       CartographyDocument<GeographicShape> geographicShapes = gsReader.read();
-      MapMatcher mm = new MapMatcher(geographicShapes);
       System.out.println("Read the .geo file");
 
       // CHOOSE A .str FILE
@@ -120,8 +116,9 @@ public class FPApp
 
       panel = new CartographyPanel<StreetSegment>(document, new StreetSegmentCartographer());
       
-      // MapMatcher causes it not to work, but Andrew will figure it out soon
-      dynamicPanel = new DynamicCartographyPanel<StreetSegment>(document, new StreetSegmentCartographer(), proj, mm);
+      // Use this to get simulator working. Will work on GPS itself later.
+      // dynamicPanel = new DynamicCartographyPanel<StreetSegment>(document,
+      //     new StreetSegmentCartographer(), proj);
       frame = new JFrame("Map");
       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       frame.setSize(600, 600);
@@ -173,7 +170,7 @@ public class FPApp
       item.addActionListener(this);
       menu.add(item);
 
-      frame.setContentPane(dynamicPanel); //Switch to dynamicPanel to see the GPS Sim
+      frame.setContentPane(panel); //Switch to dynamicPanel to see the GPS Sim
       frame.setVisible(true);
 
       Geocoder geocoder = new Geocoder(geographicShapes, document, streets);
@@ -182,20 +179,7 @@ public class FPApp
       dialog.addStreetSegmentObserver(this);
       dialog.setLocation((int) frame.getBounds().getMaxX(), (int) frame.getBounds().getY());
 
-      // Find the right serial port
-      SerialPort[] ports = SerialPort.getCommPorts();
-      String gpsPath = null;
-      for (SerialPort port:ports)
-      {
-        String description = port.getPortDescription();
-        String path = port.getSystemPortPath();
-        if (description.indexOf("GPS") >= 0) gpsPath = path;
-      }
-    
-      // Setup the serial port
-      SerialPort gps = SerialPort.getCommPort(gpsPath); 
-      gps.openPort();
-      gps.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 0, 0);
+      GPSSimulator gps = new GPSSimulator("rockingham.gps");
       InputStream is = gps.getInputStream();
 
       // Setup the GPSReaderTask
