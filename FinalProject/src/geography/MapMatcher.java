@@ -3,6 +3,7 @@ package geography;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -10,6 +11,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import gui.CartographyDocument;
+import math.Vector;
 
 /**
  * Class used for map matching.
@@ -150,6 +152,50 @@ public class MapMatcher
 	public double[] mapMatch(Queue<double[]> curve)
 	{
 	  LinkedList<GeographicShape> closestShapes = getClosestGeographicShapes(curve.peek());
+	  AffineTransform identity = new AffineTransform();
+	  
+	  double min = Double.MAX_VALUE;
+	  double[] permFirst = null;
+	  double[] permLast = null;
+	  
+	  for (GeographicShape gshape: closestShapes)
+	  {
+	    Shape s = gshape.getShape();
+	    PathIterator pi = s.getPathIterator(identity);
+	    
+	    double[] first = new double[2];
+	    double[] last = new double[2];
+	    pi.currentSegment(first);
+	    do
+	    {
+	      pi.currentSegment(last);
+	      
+	      double result = 0.0;
+	      for (double[] point : curve)
+	        result += Vector.distancePointToLine(first, last, point);
+	      
+	      if (result < min)
+	      {
+	        min = result;
+	        permFirst = first;
+	        permLast = last;
+	      }
+	      
+	      pi.next();
+	      first = last;
+	    } while (!pi.isDone());
+	  }
+	  
+	  if (permFirst != null && permLast != null)
+	  {
+	    double lambda = Vector.dot(permFirst, curve.peek()) / Vector.dot(permFirst, permFirst);
+	    double[] p = Vector.times(lambda, permFirst);
+	    return p;
+	  }
+	  
+	  
+	  
+	  
 	  
 	  return null;
 	}

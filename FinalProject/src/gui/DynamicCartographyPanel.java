@@ -104,6 +104,11 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
       currentCurve.add(km);
       if (currentCurve.size() > 3)
         currentCurve.remove();
+      
+      double[] p;
+      if ((p = mm.mapMatch(currentCurve)) != null)
+        km = p;
+          
 
       // km = mm.mapMatch(currentCurve);
 
