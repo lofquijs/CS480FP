@@ -21,16 +21,22 @@ public class SatelliteImage
 {
   private Rectangle2D bounds;
   private File image;
+  private File data;
+  private MapProjection proj;
 
   public SatelliteImage(final String imagePath, final String dataPath, final MapProjection proj)
   {
-    // TODO: I should move all of this to a read function
     this.image = new File(imagePath);
+    this.data = new File(dataPath);
+    this.proj = proj;
+  }
 
+  public void read()
+  {
     double[] topLeftLL = new double[2];
     double[] bottomRightLL = new double[2];
 
-    try (BufferedReader reader = new BufferedReader(new FileReader(dataPath)))
+    try (BufferedReader reader = new BufferedReader(new FileReader(data.getPath())))
     {
       String line1 = reader.readLine();
       String line2 = reader.readLine();
@@ -62,6 +68,7 @@ public class SatelliteImage
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+
 
   }
 
