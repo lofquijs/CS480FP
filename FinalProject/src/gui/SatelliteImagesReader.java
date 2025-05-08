@@ -19,6 +19,8 @@ import geography.MapProjection;
 public class SatelliteImagesReader
 {
   private List<SatelliteImage> imgs;
+  private MapProjection proj;
+  private Path data, images;
 
   /**
    * Explicit value constructor.
@@ -33,17 +35,26 @@ public class SatelliteImagesReader
   public SatelliteImagesReader(final String images, final String data, final MapProjection proj)
   {
     this.imgs = new ArrayList<>();
-    // TODO: I should move most of this to a read function
+    this.data = Paths.get(images);
+    this.images = Paths.get(images);
+    this.proj = proj;
+  }
+
+  /**
+   * Reads in a directory of satellite images into SatelliteImage objects.
+   */
+  public void read()
+  {
     try
     {
       // Create iterators for image files
-      Iterator<String> imageFilePathsIterator = Files.list(Paths.get(images))
-          .filter(Files::isRegularFile).map(Path::toString) // convert each Path to String
+      Iterator<String> imageFilePathsIterator = Files.list(images).filter(Files::isRegularFile)
+          .map(Path::toString) // convert each Path to String
           .sorted().iterator(); // Convert the stream into an iterator
 
       // Create iterators for data files
-      Iterator<String> dataFilePathsIterator = Files.list(Paths.get(images))
-          .filter(Files::isRegularFile).map(Path::toString) // convert each Path to String
+      Iterator<String> dataFilePathsIterator = Files.list(data).filter(Files::isRegularFile)
+          .map(Path::toString) // convert each Path to String
           .sorted().iterator(); // Convert the stream into an iterator
 
       // Iterate through both iterators simultaneously
@@ -51,8 +62,9 @@ public class SatelliteImagesReader
       {
         String imagePath = imageFilePathsIterator.next();
         String dataPath = dataFilePathsIterator.next();
-        // Do something with imagePath and dataPath
-        imgs.add(new SatelliteImage(imagePath, dataPath, proj));
+        SatelliteImage temp = new SatelliteImage(imagePath, dataPath, proj);
+        temp.read();
+        imgs.add(temp);
       }
     }
     catch (IOException e)

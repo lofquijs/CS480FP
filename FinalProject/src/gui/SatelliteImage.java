@@ -20,8 +20,7 @@ import geography.MapProjection;
 public class SatelliteImage
 {
   private Rectangle2D bounds;
-  private File image;
-  private File data;
+  private File data, image;
   private MapProjection proj;
 
   public SatelliteImage(final String imagePath, final String dataPath, final MapProjection proj)
@@ -31,6 +30,9 @@ public class SatelliteImage
     this.proj = proj;
   }
 
+  /**
+   * Reads in a satellite image and data into this SateliteImage object.
+   */
   public void read()
   {
     double[] topLeftLL = new double[2];
@@ -68,7 +70,6 @@ public class SatelliteImage
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-
 
   }
 
