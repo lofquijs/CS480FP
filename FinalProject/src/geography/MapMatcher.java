@@ -134,28 +134,38 @@ public class MapMatcher
 		
 		if (y <= MAX_Y && y >= MIN_Y && x <= MAX_X && x >= MIN_X)
 		{
-		  // This looks like O(n^2), is it possible to make this faster?
-		  // I'm pretty sure there is a better way of doing this with algebra?
-		  // since we want to satisfy the equation x <= MIN_X + (RATIO_X * i)
-		  // The only unknown is i, so to solve for i -> (x - MIN_X) / RATIO_X <= i
-		  // Then placementX would just == MIN_X + (RATIO_X * i)
-		  // The same could be done for placementY
-			for (int i = 1; i <= GAP; i++)
-			{
-				double placementX = MIN_X + (RATIO_X * i);
-				if (x <= placementX)
-				{
-					for (int j = 1; j <= GAP; j++)
-					{
-						double placementY = MIN_Y + (RATIO_Y * j);
-						if (y <= placementY)
-						  // you are only returning one cell here, but we really want to search the surrounding cells too
-						  // now that you are saving time above, why don't you return multiple cells to check in an order that makes the closest cells first.
-						  // Then in mapMatch you could try and if it fails in the first attempt it can try all the cells neighbors
-							return buckets.get(placementX).get(placementY);
-					}
-				}
-			}
+		// This looks like O(n^2), is it possible to make this faster?
+      // I'm pretty sure there is a better way of doing this with algebra?
+      // since we want to satisfy the equation x <= MIN_X + (RATIO_X * i)
+      // The only unknown is i, so to solve for i -> (x - MIN_X) / RATIO_X <= i
+      // Then placementX would just == MIN_X + (RATIO_X * i)
+      // The same could be done for placementY
+      
+      double i = (x - MIN_X) / RATIO_X;
+      double placementX = MIN_X + (RATIO_X * Math.ceil(i));
+
+      double j = (y - MIN_Y) / RATIO_Y;
+      double placementY = MIN_Y + (RATIO_Y * Math.ceil(j));
+      
+      return buckets.get(placementX).get(placementY);
+      
+//      for (int i = 1; i <= GAP; i++)
+//      {
+//        double placementX = MIN_X + (RATIO_X * i);
+//        if (x <= placementX)
+//        {
+//          for (int j = 1; j <= GAP; j++)
+//          {
+//            double placementY = MIN_Y + (RATIO_Y * j);
+//            if (y <= placementY)
+//              // you are only returning one cell here, but we really want to search the surrounding cells too
+//              // now that you are saving time above, why don't you return multiple cells to check in an order that makes the closest cells first.
+//              // Then in mapMatch you could try and if it fails in the first attempt it can try all the cells neighbors
+//              return buckets.get(placementX).get(placementY);
+//          }
+//        }
+//      }
+					
 		}
 		
 		return null;
