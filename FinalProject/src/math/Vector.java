@@ -117,4 +117,51 @@ public class Vector
     return times(s, v);
   }
   
+  /**
+   * Finding distance from Point to Line.
+   * @param a -> First Line Coordinates
+   * @param b -> Second Line Coordinates
+   * @param point -> Point Coordinates
+   * @return distance from Point to Line
+   */
+  public static double distancePointToLine(final double[] a, final double[] b, final double[] point)
+  {
+    // REFERENCE:
+    // https://w3.cs.jmu.edu/bernstdh/web/common/lectures/summary_analytic-geometry-2d_computation.php
+    double d1, d2, d3;
+    boolean perpendicular;
+    
+    // These points are not along the line!
+    // This may be a problem...
+    d1 = distancePointToPoint(point, a);
+    d2 = distancePointToPoint(point, b);
+    d3 = distancePointToPoint(a, b);
+    perpendicular = Math.max(d1, d2) < d3;
+    
+    if (perpendicular)
+    {
+      // |(a2 − b2)c1 + (b1 − a1)c2 +(a1b2 − b1a2)|
+      double numerator = ((a[1] - b[1]) * point[0]) 
+                       + ((b[0] - a[0]) * point[1]) 
+                       + ((a[0] * b[1]) - (b[0] * a[1]));
+      numerator = Math.abs(numerator);
+      
+      // ||a - b||
+      return numerator / d3;  
+    }
+    
+    return Math.min(d1, d2);
+  }
+  
+  /**
+   * Finding distance from Point to Point.
+   * @param x -> Point 1
+   * @param y -> Point 2
+   * @return distance from Point to Point
+   */
+  public static double distancePointToPoint(final double[] x, final double[] y)
+  {
+    return Math.sqrt(Math.pow((x[0] - y[0]), 2) + Math.pow((x[1] - y[1]), 2));
+  }
+  
 }
