@@ -303,7 +303,9 @@ public class CartographyPanel<T> extends JPanel implements MouseListener, MouseM
     
     AffineTransform at = displayTransform.getTransform(screenBounds, bounds);
     
-    g2.drawImage(img, at, null);
+    if (img != null) {
+      g2.drawImage(img, at, null);
+    }
     
     g2.setColor(Color.BLACK);
 
