@@ -36,6 +36,7 @@ public class CartographyPanel<T> extends JPanel implements MouseListener, MouseM
   private SatelliteImagesReader satImgReader;
   private SatelliteImage satImg;
   private MapProjection proj;
+  private int counter = 0;
   protected double[] gpsLocation; // For storing GPS location
 
   /**
@@ -290,10 +291,12 @@ public class CartographyPanel<T> extends JPanel implements MouseListener, MouseM
     g2.setColor(getBackground());
     g2.fill(screenBounds);
 
-    SatelliteImage temp = satImgReader.findSatelliteImage(gpsLocation);
-    if (temp != null && (satImg == null || temp != satImg)) {
-      satImg = temp;
-      img = satImg.loadImage();
+    if (counter % 50 == 0){
+      SatelliteImage temp = satImgReader.findSatelliteImage(gpsLocation);
+      if (temp != null && (satImg == null || temp != satImg)) {
+        satImg = temp;
+        img = satImg.loadImage();
+      }
     }
 
     Rectangle2D.Double bounds = zoomStack.getFirst();
@@ -306,6 +309,7 @@ public class CartographyPanel<T> extends JPanel implements MouseListener, MouseM
 
     cartographer.paintShapes(model, g2, at);
     cartographer.paintHighlights(model, g2, at);
+    counter++;
   }
 
   /**
