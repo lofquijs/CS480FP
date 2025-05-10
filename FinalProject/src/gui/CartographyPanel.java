@@ -5,7 +5,10 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import geography.MapProjection;
+
 import java.awt.geom.*;
+import java.awt.image.BufferedImage;
 import java.util.*;
 
 import math.*;
@@ -26,9 +29,14 @@ public class CartographyPanel<T> extends JPanel implements MouseListener, MouseM
   protected DisplayCoordinatesTransformation displayTransform;
   protected LinkedList<Rectangle2D.Double> zoomStack;
 
+  private BufferedImage img;
   private CartographyDocument<T> model;
   private Cartographer<T> cartographer;
   private int[] rbMax, rbMin, rbStart, rbStop; // For the rubber-band-box
+  private SatelliteImagesReader satImgReader;
+  private SatelliteImage satImg;
+  private MapProjection proj;
+  protected double[] gpsLocation; // For storing GPS location
 
   /**
    * Explicit Value Constructor.
@@ -38,7 +46,7 @@ public class CartographyPanel<T> extends JPanel implements MouseListener, MouseM
    * @param cartographer
    *          The cartographer to use
    */
-  public CartographyPanel(final CartographyDocument<T> model, final Cartographer<T> cartographer)
+  public CartographyPanel(final CartographyDocument<T> model, final Cartographer<T> cartographer, final MapProjection proj)
   {
     displayTransform = new DisplayCoordinatesTransformation();
 
@@ -57,6 +65,11 @@ public class CartographyPanel<T> extends JPanel implements MouseListener, MouseM
     addMouseMotionListener(this);
 
     setDoubleBuffered(false);
+    
+    this.proj = proj;
+    
+    satImgReader = new SatelliteImagesReader("./", "./", proj);
+    satImgReader.read();
   }
 
   /**
@@ -277,11 +290,19 @@ public class CartographyPanel<T> extends JPanel implements MouseListener, MouseM
     g2.setColor(getBackground());
     g2.fill(screenBounds);
 
-    g2.setColor(Color.BLACK);
+    SatelliteImage temp = satImgReader.findSatelliteImage(gpsLocation);
+    if (temp != null && (satImg == null || temp != satImg)) {
+      satImg = temp;
+      img = satImg.loadImage();
+    }
 
     Rectangle2D.Double bounds = zoomStack.getFirst();
-
+    
     AffineTransform at = displayTransform.getTransform(screenBounds, bounds);
+    
+    g2.drawImage(img, at, null);
+    
+    g2.setColor(Color.BLACK);
 
     cartographer.paintShapes(model, g2, at);
     cartographer.paintHighlights(model, g2, at);
@@ -298,5 +319,15 @@ public class CartographyPanel<T> extends JPanel implements MouseListener, MouseM
     this.model = model;
     initializeZoomStack(model.getBounds());
     repaint();
+  }
+
+  /**
+   * Set the GPS location.
+   * 
+   * @param gpsLocation
+   *          The GPS location
+   */
+  public void setGPSLocation(double[] gpsLocation) {
+    this.gpsLocation = gpsLocation;
   }
 }

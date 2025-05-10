@@ -52,7 +52,7 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
   public DynamicCartographyPanel(final CartographyDocument<T> model,
       final Cartographer<T> cartographer, final MapProjection proj, final MapMatcher mm)
   {
-    super(model, cartographer);
+    super(model, cartographer, proj);
     this.proj = proj;
 
     ll = new double[2];
@@ -142,6 +142,7 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
     }
 
     // Here I will need to pass the location of the user to super.paint() somehow: Dakota
+    setGPSLocation(km);
     super.paint(g);
 
     if (gpgga != null)
