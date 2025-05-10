@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -19,6 +20,7 @@ import geography.MapProjection;
  */
 public class SatelliteImage
 {
+  private BufferedImage cashedImg;
   private Rectangle2D bounds;
   private File data, image;
   private MapProjection proj;
@@ -28,6 +30,7 @@ public class SatelliteImage
     this.image = new File(imagePath);
     this.data = new File(dataPath);
     this.proj = proj;
+    this.cashedImg = null;
   }
 
   /**
@@ -43,34 +46,42 @@ public class SatelliteImage
       String line1 = reader.readLine();
       String line2 = reader.readLine();
 
+//      System.out.println("Line 1: " + line1);
+//      System.out.println("Line 2: " + line2);
+
       String[] parts1 = line1.trim().split("\\s+");
-      topLeftLL[0] = Double.parseDouble(parts1[0]);
-      topLeftLL[1] = Double.parseDouble(parts1[1]);
-
       String[] parts2 = line2.trim().split("\\s+");
-      bottomRightLL[0] = Double.parseDouble(parts2[0]);
-      bottomRightLL[1] = Double.parseDouble(parts2[1]);
 
-      double[] topLeftXY = proj.forward(topLeftLL);
-      double[] bottomRightXY = proj.forward(bottomRightLL);
+      topLeftLL[0] = Double.parseDouble(parts2[1]); // Longitude
+      topLeftLL[1] = Double.parseDouble(parts2[0]); // Latitude
 
-      // Get min and max for x and y in case coordinates are not in strict order
-      double minX = Math.min(topLeftXY[0], bottomRightXY[0]);
-      double maxX = Math.max(topLeftXY[0], bottomRightXY[0]);
-      double minY = Math.min(topLeftXY[1], bottomRightXY[1]);
-      double maxY = Math.max(topLeftXY[1], bottomRightXY[1]);
+      bottomRightLL[0] = Double.parseDouble(parts1[1]); // Longitude
+      bottomRightLL[1] = Double.parseDouble(parts1[0]); // Latitude
 
-      double width = maxX - minX;
-      double height = maxY - minY;
+//      System.out.printf("Parsed Top Left LL: %.6f, %.6f%n", topLeftLL[0], topLeftLL[1]);
+//      System.out.printf("Parsed Bottom Right LL: %.6f, %.6f%n", bottomRightLL[0], bottomRightLL[1]);
+
+      // Store the returned values in new arrays
+      double[] topLeftXY = proj.forward(topLeftLL).clone(); // Clone to store a copy
+      double[] bottomRightXY = proj.forward(bottomRightLL).clone(); // Clone to store a copy
+
+//      System.out.printf("Top Left LL: %.6f, %.6f -> XY: %.6f, %.6f%n", topLeftLL[0], topLeftLL[1],
+//          topLeftXY[0], topLeftXY[1]);
+//      System.out.printf("Bottom Right LL: %.6f, %.6f -> XY: %.6f, %.6f%n", bottomRightLL[0],
+//          bottomRightLL[1], bottomRightXY[0], bottomRightXY[1]);
+
+      double minX = topLeftXY[0]; // X-coordinate of the top-left corner
+      double minY = bottomRightXY[1]; // Y-coordinate of the bottom-right corner
+      double width = Math.abs(bottomRightXY[0] - topLeftXY[0]);
+      double height = Math.abs(topLeftXY[1] - bottomRightXY[1]);
 
       this.bounds = new Rectangle2D.Double(minX, minY, width, height);
+      System.out.println("Calculated Bounds: " + bounds + " | Image: " + image.getName());
     }
     catch (NumberFormatException | IOException e)
     {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
-
   }
 
   /**
@@ -80,16 +91,36 @@ public class SatelliteImage
    */
   public BufferedImage loadImage()
   {
-    BufferedImage img;
+    if (cashedImg != null) {
+      return cashedImg;
+    }
+    
+    BufferedImage img = null;
 
     try
     {
       img = ImageIO.read(image);
+      if (img == null)
+      {
+        System.err.println(
+            "Error: Unable to load image. Unsupported or invalid format: " + image.getPath());
+      }
+      else
+      {
+        // Always convert to a standard type (TYPE_INT_ARGB)
+        BufferedImage convertedImg = new BufferedImage(img.getWidth(), img.getHeight(),
+            BufferedImage.TYPE_INT_ARGB // Use a standard type
+        );
+        Graphics2D g2d = convertedImg.createGraphics();
+        g2d.drawImage(img, 0, 0, null);
+        g2d.dispose();
+        img = convertedImg;
+        cashedImg = img;
+      }
     }
     catch (IOException e)
     {
       e.printStackTrace();
-      img = null;
     }
 
     return img;
@@ -103,5 +134,15 @@ public class SatelliteImage
   public Rectangle2D getBounds()
   {
     return bounds;
+  }
+
+  /**
+   * Getter for the name of the image file.
+   * 
+   * @return the name of the image file
+   */
+  public String getImageName()
+  {
+    return image.getName();
   }
 }

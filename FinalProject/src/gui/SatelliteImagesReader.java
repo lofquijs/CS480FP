@@ -35,7 +35,7 @@ public class SatelliteImagesReader
   public SatelliteImagesReader(final String images, final String data, final MapProjection proj)
   {
     this.imgs = new ArrayList<>();
-    this.data = Paths.get(images);
+    this.data = Paths.get(data);
     this.images = Paths.get(images);
     this.proj = proj;
   }
@@ -62,6 +62,7 @@ public class SatelliteImagesReader
       {
         String imagePath = imageFilePathsIterator.next();
         String dataPath = dataFilePathsIterator.next();
+        // System.out.println(dataPath);
         SatelliteImage temp = new SatelliteImage(imagePath, dataPath, proj);
         temp.read();
         imgs.add(temp);
@@ -74,10 +75,15 @@ public class SatelliteImagesReader
     }
   }
 
-  public SatelliteImage findSatelliteImage(double[] km) {
-    for (SatelliteImage img : imgs) {
-      if (img.getBounds().contains(km[0], km[1]))
+  public SatelliteImage findSatelliteImage(double[] km)
+  {
+    for (SatelliteImage img : imgs)
+    {
+      if (img.getBounds().contains(km[0], km[1])) {
+        // Print the name of the chosen image
+        System.out.println("Chosen Image: " + img.getImageName());
         return img;
+      }
     }
     return null;
   }

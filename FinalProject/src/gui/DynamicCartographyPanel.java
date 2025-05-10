@@ -90,6 +90,8 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
       ll[0] = gpgga.getLongitude();
       ll[1] = gpgga.getLatitude();
 
+//      System.out.printf("GPS Location: %.6f, %.6f%n", ll[0], ll[1]);
+      
       km = proj.forward(ll);
 
       // From what Dr. Bernstein has said, we must split up the points
@@ -122,7 +124,7 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
       // I'm trying to do this by using a counter to add points late
       if (counter % 20 == 0)
       {
-        System.out.println(counter);
+//        System.out.println(counter);
         currentPath.add(km);
       }
       if (currentPath.size() > 5)
@@ -131,8 +133,8 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
       double[] p;
       if ((p = mm.mapMatch(currentPath)) != null)
         km = p;
-      else
-          System.out.println("Map Match failed");
+//      else
+//          System.out.println("Map Match failed");
 
       // km = mm.mapMatch(currentPath);
 

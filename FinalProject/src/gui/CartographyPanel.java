@@ -47,7 +47,8 @@ public class CartographyPanel<T> extends JPanel implements MouseListener, MouseM
    * @param cartographer
    *          The cartographer to use
    */
-  public CartographyPanel(final CartographyDocument<T> model, final Cartographer<T> cartographer, final MapProjection proj)
+  public CartographyPanel(final CartographyDocument<T> model, final Cartographer<T> cartographer,
+      final MapProjection proj)
   {
     displayTransform = new DisplayCoordinatesTransformation();
 
@@ -66,10 +67,11 @@ public class CartographyPanel<T> extends JPanel implements MouseListener, MouseM
     addMouseMotionListener(this);
 
     setDoubleBuffered(false);
-    
+
     this.proj = proj;
-    
-    satImgReader = new SatelliteImagesReader("./", "./", proj);
+
+    satImgReader = new SatelliteImagesReader("rockinghamSatImgsJPEG", "rockinghamSatImgsMetadata",
+        proj);
     satImgReader.read();
   }
 
@@ -266,6 +268,21 @@ public class CartographyPanel<T> extends JPanel implements MouseListener, MouseM
 
   }
 
+  private BufferedImage scaleImage(BufferedImage originalImage, double scaleX, double scaleY)
+  {
+    int newWidth = (int) (originalImage.getWidth() * scaleX);
+    int newHeight = (int) (originalImage.getHeight() * scaleY);
+
+    BufferedImage scaledImage = new BufferedImage(newWidth, newHeight, originalImage.getType());
+    Graphics2D g2d = scaledImage.createGraphics();
+    g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+        RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+    g2d.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
+    g2d.dispose();
+
+    return scaledImage;
+  }
+
   /**
    * Render this component.
    * 
@@ -277,40 +294,54 @@ public class CartographyPanel<T> extends JPanel implements MouseListener, MouseM
   {
     Graphics2D g2 = (Graphics2D) g;
     Rectangle screenBounds = g2.getClipBounds();
-    // Dakota Lawson
 
-    // Somehow in this method I will take in the location of the user
-
-    // Here is where the background gets drawn, here is were I need to add in my code
-
-    // I am going to add a private variable that stores the last drawn image, that way I don't need
-    // to reload the file every time if I want the same one
-
-    // First I must identify which photo needs to be drawn.
-    // Then I must draw the photo in the appropriate location.
+    // Clear the background
     g2.setColor(getBackground());
     g2.fill(screenBounds);
 
-    if (counter % 50 == 0){
+    // Update the satellite image every 30 frames
+    if (counter % 30 == 0 && gpsLocation != null)
+    {
+      System.out.printf("GPS Location: %.6f, %.6f%n", gpsLocation[0], gpsLocation[1]);
       SatelliteImage temp = satImgReader.findSatelliteImage(gpsLocation);
-      if (temp != null && (satImg == null || temp != satImg)) {
+      if (temp != null && (satImg == null || temp != satImg))
+      {
+        System.out.println("Loading new satellite image...");
         satImg = temp;
         img = satImg.loadImage();
       }
     }
 
     Rectangle2D.Double bounds = zoomStack.getFirst();
-    
     AffineTransform at = displayTransform.getTransform(screenBounds, bounds);
-    
-    if (img != null) {
-      g2.drawImage(img, at, null);
-    }
-    
-    g2.setColor(Color.BLACK);
 
+    // Draw the satellite image if available
+    if (img != null && satImg != null)
+    {
+      // Get the bounds of the satellite image in map coordinates
+      Rectangle2D imageBounds = satImg.getBounds();
+      // System.out.println("Satellite Image Bounds (Map Coordinates): " + imageBounds);
+
+      // Transform the image bounds to screen coordinates
+      Shape transformedBounds = at.createTransformedShape(imageBounds);
+      Rectangle screenImageBounds = transformedBounds.getBounds();
+      // System.out.println("Transformed Bounds (Screen Coordinates): " + screenImageBounds);
+
+      // Scale the image to fit the bounds
+      // double scaleX = screenImageBounds.getWidth() / img.getWidth();
+      // double scaleY = screenImageBounds.getHeight() / img.getHeight();
+      // System.out.printf("Scaling Factors: scaleX=%.6f, scaleY=%.6f%n", scaleX, scaleY);
+
+      // Draw the scaled image at the transformed bounds' location
+      g2.drawImage(img, screenImageBounds.x, screenImageBounds.y, screenImageBounds.width,
+          screenImageBounds.height, null);
+    }
+
+    // Draw the map shapes and highlights
+    g2.setColor(Color.BLACK);
     cartographer.paintShapes(model, g2, at);
     cartographer.paintHighlights(model, g2, at);
+
     counter++;
   }
 
@@ -333,7 +364,8 @@ public class CartographyPanel<T> extends JPanel implements MouseListener, MouseM
    * @param gpsLocation
    *          The GPS location
    */
-  public void setGPSLocation(double[] gpsLocation) {
+  public void setGPSLocation(double[] gpsLocation)
+  {
     this.gpsLocation = gpsLocation;
   }
 }
