@@ -126,9 +126,13 @@ public class Vector
    */
   public static double distancePointToLine(final double[] a, final double[] b, final double[] point)
   {
+    // REFERENCE:
+    // https://w3.cs.jmu.edu/bernstdh/web/common/lectures/summary_analytic-geometry-2d_computation.php
     double d1, d2, d3;
     boolean perpendicular;
     
+    // These points are not along the line!
+    // This may be a problem...
     d1 = distancePointToPoint(point, a);
     d2 = distancePointToPoint(point, b);
     d3 = distancePointToPoint(a, b);

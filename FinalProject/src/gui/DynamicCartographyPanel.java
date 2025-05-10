@@ -32,11 +32,12 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
   private GPGGASentence gpgga;
   private MapProjection proj;
   private MapMatcher mm;
-  private Queue<double[]> currentCurve;
+  private Queue<double[]> currentPath;
 
   // Used to reduce object creation.
   private double[] ll, km;
   private Point2D.Double pointKM, pointXY;
+  private int counter = 0;
 
   /**
    * Explicit Value Constructor.
@@ -59,7 +60,7 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
     pointXY = new Point2D.Double();
 
     this.mm = mm;
-    this.currentCurve = new LinkedList<>();
+    this.currentPath = new LinkedList<>();
   }
 
   @Override
@@ -91,29 +92,53 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
 
       km = proj.forward(ll);
 
-      // Curve-to-curve matching! Somehow we must compare the arc from previousPath
-      // to GeographicShapes return from getClosestGeographicShapes. How we do this?
-      // I dunno. However, I would think you would use the path iterator on GeographicShapes.
-      // Using those double[] from path iterator, we can compare them to the double[]
-      // in previousPath. How we decide what point to be compared to what. I have no
-      // utter idea. If anyone sees this, and has an idea, let me know!
-      // Reference:
-      // https://w3.cs.jmu.edu/bernstdh/web/common/lectures/summary_map-matching_introduction.php
-
-      // Saves last 3 kms to compare curve
-      currentCurve.add(km);
-      if (currentCurve.size() > 3)
-        currentCurve.remove();
+      // From what Dr. Bernstein has said, we must split up the points
+      // Ex1:
+      /*
+       * |
+       * |---• 
+       * |
+       * |          CORRECT!
+       * |---• 
+       * |
+       * |
+       * |---• 
+       * |  
+       */
+      
+      //Ex2:
+      /*
+       * |
+       * |---• 
+       * |---•
+       * |---•      WRONG!
+       * |---• 
+       * |---•
+       * |---•
+       * |---• 
+       * |  
+       */
+      
+      // I'm trying to do this by using a counter to add points late
+      if (counter % 20 == 0)
+      {
+        System.out.println(counter);
+        currentPath.add(km);
+      }
+      if (currentPath.size() > 5)
+        currentPath.remove();
       
       double[] p;
-      if ((p = mm.mapMatch(currentCurve)) != null)
+      if ((p = mm.mapMatch(currentPath)) != null)
         km = p;
-          
+      else
+          System.out.println("Map Match failed");
 
-      // km = mm.mapMatch(currentCurve);
+      // km = mm.mapMatch(currentPath);
 
       bounds = new Rectangle2D.Double(km[0] - 1.0, km[1] - 1.0, 2.0, 2.0);
       zoomStack.addFirst(bounds);
+      counter++;
     }
 
     // Here I will need to pass the location of the user to super.paint() somehow: Dakota

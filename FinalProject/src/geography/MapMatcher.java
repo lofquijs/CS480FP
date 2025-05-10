@@ -3,7 +3,6 @@ package geography;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -31,8 +30,8 @@ public class MapMatcher
 	private static double MIN_Y = Double.MAX_VALUE;
 	private static double RATIO_X;
 	private static double RATIO_Y;
-	private static int GAP = 100; // How big the grid is (i.e. 10 x 10)
-	                              // We can experiment with this value.
+	private static int GAP = 800;  // How big the grid is (i.e. 10 x 10)
+	                               // We can experiment with this value.
 	
 	// This is the buckets itself. It is quite confusing, but all you need to know is that
 	// it is a HashMap inside of another HashMap. You use the RATIO values to access it.
@@ -152,7 +151,6 @@ public class MapMatcher
 	public double[] mapMatch(Queue<double[]> curve)
 	{
 	  LinkedList<GeographicShape> closestShapes = getClosestGeographicShapes(curve.peek());
-	  AffineTransform identity = new AffineTransform();
 	  
 	  double min = Double.MAX_VALUE;
 	  double[] permFirst = null;
@@ -160,8 +158,9 @@ public class MapMatcher
 	  
 	  for (GeographicShape gshape: closestShapes)
 	  {
+	    
 	    Shape s = gshape.getShape();
-	    PathIterator pi = s.getPathIterator(identity);
+	    PathIterator pi = s.getPathIterator(null);
 	    
 	    double[] first = new double[2];
 	    double[] last = new double[2];
@@ -169,6 +168,7 @@ public class MapMatcher
 	    do
 	    {
 	      pi.currentSegment(last);
+	      pi.next();
 	      
 	      double result = 0.0;
 	      for (double[] point : curve)
@@ -177,14 +177,34 @@ public class MapMatcher
 	      if (result < min)
 	      {
 	        min = result;
-	        permFirst = first;
-	        permLast = last;
+	        permFirst = new double[] {first[0], first[1]};
+	        permLast = new double[] {last[0], last[1]};
 	      }
 	      
-	      pi.next();
-	      first = last;
+	      first = new double[] {last[0], last[1]};
 	    } while (!pi.isDone());
 	  }
+	  
+	  /**
+	   *             
+	   *             |     / 
+	   *             |    0a
+	   *             |   /
+	   *             |  0p <---- b
+	   *             | /
+	   *             |/
+	   * ------------0---------------
+	   *             | 
+	   *             | 
+	   *             |
+	   *             |
+	   *             |
+	   *             |
+	   */
+	  
+	  // lambda = (a * b) / (a * a)
+	  // p = lambda * a
+	  
 	  
 	  if (permFirst != null && permLast != null)
 	  {
@@ -192,10 +212,6 @@ public class MapMatcher
 	    double[] p = Vector.times(lambda, permFirst);
 	    return p;
 	  }
-	  
-	  
-	  
-	  
 	  
 	  return null;
 	}
