@@ -48,6 +48,8 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
    *          -> Used to draw the maps.
    * @param proj
    *          -> Map Projection used on other Methods.
+   * @param mm
+   *          -> Map Matcher used to fix point onto correct line.
    */
   public DynamicCartographyPanel(final CartographyDocument<T> model,
       final Cartographer<T> cartographer, final MapProjection proj, final MapMatcher mm)
@@ -83,7 +85,6 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
   public void paint(final Graphics g)
   {
     Rectangle2D.Double bounds = null;
-    LinkedList<GeographicShape> nearestShapes = null;
 
     if (gpgga != null)
     {
@@ -128,13 +129,12 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
       if (currentPath.size() > 5)
         currentPath.remove();
       
-      double[] p;
-      if ((p = mm.mapMatch(currentPath)) != null)
+      double[] p = mm.mapMatch(currentPath);
+      if (p != null)
         km = p;
       else
-          System.out.println("Map Match failed");
+        System.out.println("Map Match failed");
 
-      // km = mm.mapMatch(currentPath);
 
       bounds = new Rectangle2D.Double(km[0] - 1.0, km[1] - 1.0, 2.0, 2.0);
       zoomStack.addFirst(bounds);
