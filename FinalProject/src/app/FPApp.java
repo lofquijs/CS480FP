@@ -22,8 +22,6 @@ import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
 
-import com.fazecast.jSerialComm.SerialPort;
-
 import dataprocessing.Geocoder;
 import feature.Street;
 import feature.StreetSegment;
@@ -33,7 +31,6 @@ import geography.AbstractMapProjection;
 import geography.ConicalEqualAreaProjection;
 import geography.GeographicShape;
 import geography.GeographicShapesReader;
-import geography.MapMatcher;
 import gps.GPGGASentence;
 import gps.GPSObserver;
 import gps.GPSReaderTask;
@@ -109,7 +106,6 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
 			CartographyDocument<GeographicShape> geographicShapes = gsReader.read();
 			System.out.println("Read the .geo file");
 
-<<<<<<< HEAD
 			// CHOOSE A .str FILE
 			InputStream iss = new FileInputStream(new File("rockingham-streets.str"));
 			// InputStream iss = new FileInputStream(new File("virginia-streets.str"));
@@ -117,28 +113,8 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
 			Map<String, Street> streets = new HashMap<String, Street>();
 			document = sReader.read(streets);
 			System.out.println("Read the .str file");
-=======
-      // CHOOSE A .str FILE
-      InputStream iss = new FileInputStream(new File("rockingham-streets.str"));
-      // InputStream iss = new FileInputStream(new File("virginia-streets.str"));
-      StreetsReader sReader = new StreetsReader(iss, geographicShapes);
-      Map<String, Street> streets = new HashMap<String, Street>();
-      document = sReader.read(streets);
-      MapMatcher mm = new MapMatcher(geographicShapes);
-      System.out.println("Read the .str file");
->>>>>>> branch 'main' of https://github.com/lofquijs/CS480FP.git
 
-<<<<<<< HEAD
 			panel = new CartographyPanel<StreetSegment>(document, new StreetSegmentCartographer());
-=======
-      panel = new CartographyPanel<StreetSegment>(document, new StreetSegmentCartographer());
-      
-      // MapMatcher causes it not to work, but Andrew will figure it out soon
-      dynamicPanel = new DynamicCartographyPanel<StreetSegment>(document, new StreetSegmentCartographer(), proj, mm);
-      frame = new JFrame("Map");
-      frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-      frame.setSize(600, 600);
->>>>>>> branch 'main' of https://github.com/lofquijs/CS480FP.git
 
 			// Use this to get simulator working. Will work on GPS itself later.
 			// dynamicPanel = new DynamicCartographyPanel<StreetSegment>(document,
@@ -174,19 +150,13 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
 			menu = new JMenu("Path");
 			menuBar.add(menu);
 
-<<<<<<< HEAD
 			item = new JMenuItem(CALCULATE);
 			item.addActionListener(this);
 			menu.add(item);
-=======
-      frame.setContentPane(dynamicPanel);
-      frame.setVisible(true);
->>>>>>> branch 'main' of https://github.com/lofquijs/CS480FP.git
 
 			menu = new JMenu("Algorithm");
 			menuBar.add(menu);
 
-<<<<<<< HEAD
 			item = new JMenuItem(ASTAR);
 			item.addActionListener(this);
 			menu.add(item);
@@ -199,23 +169,6 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
 			item = new JMenuItem(CORRECTING);
 			item.addActionListener(this);
 			menu.add(item);
-=======
-   // Find the right serial port
-      SerialPort[] ports = SerialPort.getCommPorts();
-      String gpsPath = null;
-      for (SerialPort port:ports)
-      {
-        String description = port.getPortDescription();
-        String path = port.getSystemPortPath();
-        if (description.indexOf("GPS") >= 0) gpsPath = path;
-      }
-    
-      // Setup the serial port
-      SerialPort gps = SerialPort.getCommPort(gpsPath); 
-      gps.openPort();
-      gps.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 0, 0);
-      InputStream is = gps.getInputStream();
->>>>>>> branch 'main' of https://github.com/lofquijs/CS480FP.git
 
 			menu = new JMenu("Permanent Structure");
 			menuBar.add(menu);
