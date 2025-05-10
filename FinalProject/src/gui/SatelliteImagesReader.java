@@ -73,4 +73,12 @@ public class SatelliteImagesReader
       e.printStackTrace();
     }
   }
+
+  public SatelliteImage findSatelliteImage(double[] km) {
+    for (SatelliteImage img : imgs) {
+      if (img.getBounds().contains(km[0], km[1]))
+        return img;
+    }
+    return null;
+  }
 }
