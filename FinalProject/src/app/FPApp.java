@@ -92,6 +92,7 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
 	private JTextArea textArea;
 	private AbstractMapProjection proj = new ConicalEqualAreaProjection(-96.0, 37.5, 29.5, 45.5);
 	private CartographyDocument<GeographicShape> geographicShapes;
+	private GPSReaderTask gpsReader;
 
 	/**
 	 * Default constructor.
@@ -214,26 +215,23 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
 //      GPSSimulator gps = new GPSSimulator("rockingham.gps");
 //      InputStream is = gps.getInputStream();
 
-//			SerialPort[] ports = SerialPort.getCommPorts();
-//	     String gpsPath = null;
-//	     for (SerialPort port:ports)
-//	     {
-//	       String description = port.getPortDescription();
-//	       String path = port.getSystemPortPath();
-//	       if (description.indexOf("GPS") >= 0) gpsPath = path;
-//	     }
-//	   
-//	     // Setup the serial port
-//	     SerialPort gps = SerialPort.getCommPort(gpsPath); 
-//	     gps.openPort();
-//	     gps.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 0, 0);
-//	     InputStream is = gps.getInputStream();
-//			
-//			// Setup the GPSReaderTask
-//      GPSReaderTask gpsReader = new GPSReaderTask(is, "GPGGA");
-//      gpsReader.addGPSObserver(dynamicPanel);
-//			frame.setVisible(true);
-//      gpsReader.execute();
+			SerialPort[] ports = SerialPort.getCommPorts();
+	     String gpsPath = null;
+	     for (SerialPort port:ports)
+	     {
+	       String description = port.getPortDescription();
+	       String path = port.getSystemPortPath();
+	       if (description.indexOf("GPS") >= 0) gpsPath = path;
+	     }
+	   
+	     // Setup the serial port
+	     SerialPort gps = SerialPort.getCommPort(gpsPath); 
+	     gps.openPort();
+	     gps.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 0, 0);
+	     InputStream is = gps.getInputStream();
+			
+			// Setup the GPSReaderTask
+      gpsReader = new GPSReaderTask(is, "GPGGA");
 //
 //			frame.setVisible(true);
 		} catch (IOException ioe) {
@@ -254,7 +252,7 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
 					panel.repaint();
 					task = null;
 				} catch (InterruptedException | ExecutionException e) {
-					JOptionPane.showMessageDialog(frame, "Interrupted", "Exception", JOptionPane.ERROR_MESSAGE);
+//					JOptionPane.showMessageDialog(frame, "Interrupted", "Exception", JOptionPane.ERROR_MESSAGE);
 					e.printStackTrace();
 				}
 			}
@@ -351,28 +349,10 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
       frame.setContentPane(dynamicPanel);
       frame.setVisible(true);
       
-      SerialPort[] ports = SerialPort.getCommPorts();
-      String gpsPath = null;
-      for (SerialPort port:ports)
-      {
-        String description = port.getPortDescription();
-        String path = port.getSystemPortPath();
-        if (description.indexOf("GPS") >= 0) gpsPath = path;
-      }
-    
-      // Setup the serial port
-      SerialPort gps = SerialPort.getCommPort(gpsPath); 
-      gps.openPort();
-      gps.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 0, 0);
-      InputStream is = gps.getInputStream();
-     
-     // Setup the GPSReaderTask
-     GPSReaderTask gpsReader = new GPSReaderTask(is, "GPGGA");
-     gpsReader.addGPSObserver(dynamicPanel);
-     frame.setVisible(true);
-     gpsReader.execute();
-
-     frame.setVisible(true);
+      gpsReader.addGPSObserver(dynamicPanel);
+      frame.setVisible(true);
+      gpsReader.execute();
+      
 
 			// Construct the SwingWorker
 			task = new PathFindingWorker(alg, originSegment.getHead(), destinationSegment.getHead(), network, document,
