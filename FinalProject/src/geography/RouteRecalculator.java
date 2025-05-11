@@ -31,6 +31,11 @@ public class RouteRecalculator
     this.al = al;
   }
   
+  public boolean isRoute()
+  {
+    return model.highlighted().hasNext();
+  }
+  
   /**
    * Checks if we are on route. If not, it sends an action to recalculate route.
    * @param shape -> Current Location

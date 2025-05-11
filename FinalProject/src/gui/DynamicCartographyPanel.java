@@ -140,7 +140,7 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
         System.out.println("Map Match failed");
       
       // Route Recalculation
-      if (rr != null)
+      if ((rr != null) && rr.isRoute()) 
       {
         GeographicShape currentLocation = mm.getCurrentLocation();
         rr.checkRoute(currentLocation);

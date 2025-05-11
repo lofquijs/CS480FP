@@ -90,6 +90,8 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
 	private StreetSegment originSegment, destinationSegment;
 	private StreetNetwork network;
 	private JTextArea textArea;
+	private AbstractMapProjection proj = new ConicalEqualAreaProjection(-96.0, 37.5, 29.5, 45.5);
+	private CartographyDocument<GeographicShape> geographicShapes;
 
 	/**
 	 * Default constructor.
@@ -105,9 +107,9 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
 			// CHOOSE A .geo FILE
 			InputStream isgeo = new FileInputStream(new File("rockingham-streets.geo"));
 			// InputStream isgeo = new FileInputStream(new File("virginia-streets.geo"));
-			AbstractMapProjection proj = new ConicalEqualAreaProjection(-96.0, 37.5, 29.5, 45.5);
+			
 			GeographicShapesReader gsReader = new GeographicShapesReader(isgeo, proj);
-			CartographyDocument<GeographicShape> geographicShapes = gsReader.read();
+			geographicShapes = gsReader.read();
 			System.out.println("Read the .geo file");
 
 			// CHOOSE A .str FILE
@@ -121,11 +123,11 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
 			
 
 			panel = new CartographyPanel<StreetSegment>(document, new StreetSegmentCartographer());
-			MapMatcher mm = new MapMatcher(geographicShapes);
-			RouteRecalculator routeRecalculator = new RouteRecalculator(document, this);
-			
-			dynamicPanel = new DynamicCartographyPanel<StreetSegment>(document,
-			new StreetSegmentCartographer(), proj, mm, routeRecalculator);
+//			MapMatcher mm = new MapMatcher(geographicShapes);
+//			RouteRecalculator routeRecalculator = new RouteRecalculator(document, this);
+//			
+//			dynamicPanel = new DynamicCartographyPanel<StreetSegment>(document,
+//			new StreetSegmentCartographer(), proj, mm, routeRecalculator);
 			
 			frame = new JFrame("Map");
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -196,9 +198,12 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
 			item = new JMenuItem(OLDEST);
 			item.addActionListener(this);
 			menu.add(item);
-
-			frame.setContentPane(dynamicPanel);
+			
+			frame.setContentPane(panel);
 			frame.setVisible(true);
+
+//			frame.setContentPane(dynamicPanel);
+//			frame.setVisible(true);
 
 			Geocoder geocoder = new Geocoder(geographicShapes, document, streets);
 			dialog = new GeocodeDialog(frame, geocoder);
@@ -209,28 +214,28 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
 //      GPSSimulator gps = new GPSSimulator("rockingham.gps");
 //      InputStream is = gps.getInputStream();
 
-			SerialPort[] ports = SerialPort.getCommPorts();
-	     String gpsPath = null;
-	     for (SerialPort port:ports)
-	     {
-	       String description = port.getPortDescription();
-	       String path = port.getSystemPortPath();
-	       if (description.indexOf("GPS") >= 0) gpsPath = path;
-	     }
-	   
-	     // Setup the serial port
-	     SerialPort gps = SerialPort.getCommPort(gpsPath); 
-	     gps.openPort();
-	     gps.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 0, 0);
-	     InputStream is = gps.getInputStream();
-			
-			// Setup the GPSReaderTask
-      GPSReaderTask gpsReader = new GPSReaderTask(is, "GPGGA");
-      gpsReader.addGPSObserver(dynamicPanel);
-			frame.setVisible(true);
-      gpsReader.execute();
-
-			frame.setVisible(true);
+//			SerialPort[] ports = SerialPort.getCommPorts();
+//	     String gpsPath = null;
+//	     for (SerialPort port:ports)
+//	     {
+//	       String description = port.getPortDescription();
+//	       String path = port.getSystemPortPath();
+//	       if (description.indexOf("GPS") >= 0) gpsPath = path;
+//	     }
+//	   
+//	     // Setup the serial port
+//	     SerialPort gps = SerialPort.getCommPort(gpsPath); 
+//	     gps.openPort();
+//	     gps.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 0, 0);
+//	     InputStream is = gps.getInputStream();
+//			
+//			// Setup the GPSReaderTask
+//      GPSReaderTask gpsReader = new GPSReaderTask(is, "GPGGA");
+//      gpsReader.addGPSObserver(dynamicPanel);
+//			frame.setVisible(true);
+//      gpsReader.execute();
+//
+//			frame.setVisible(true);
 		} catch (IOException ioe) {
 			JOptionPane.showMessageDialog(frame, ioe.toString(), "Error", JOptionPane.ERROR_MESSAGE);
 		}
@@ -336,6 +341,38 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
 		    originSegment = (StreetSegment) evt.getSource();
 		    message = "Recalculating!";
 		  }
+		  
+		  MapMatcher mm = new MapMatcher(geographicShapes);
+      RouteRecalculator routeRecalculator = new RouteRecalculator(document, this);
+      
+      dynamicPanel = new DynamicCartographyPanel<StreetSegment>(document,
+      new StreetSegmentCartographer(), proj, mm, routeRecalculator);
+      
+      frame.setContentPane(dynamicPanel);
+      frame.setVisible(true);
+      
+      SerialPort[] ports = SerialPort.getCommPorts();
+      String gpsPath = null;
+      for (SerialPort port:ports)
+      {
+        String description = port.getPortDescription();
+        String path = port.getSystemPortPath();
+        if (description.indexOf("GPS") >= 0) gpsPath = path;
+      }
+    
+      // Setup the serial port
+      SerialPort gps = SerialPort.getCommPort(gpsPath); 
+      gps.openPort();
+      gps.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 0, 0);
+      InputStream is = gps.getInputStream();
+     
+     // Setup the GPSReaderTask
+     GPSReaderTask gpsReader = new GPSReaderTask(is, "GPGGA");
+     gpsReader.addGPSObserver(dynamicPanel);
+     frame.setVisible(true);
+     gpsReader.execute();
+
+     frame.setVisible(true);
 
 			// Construct the SwingWorker
 			task = new PathFindingWorker(alg, originSegment.getHead(), destinationSegment.getHead(), network, document,
