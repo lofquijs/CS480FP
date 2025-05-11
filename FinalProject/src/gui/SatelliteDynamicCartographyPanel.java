@@ -22,7 +22,7 @@ import gps.GPSObserver;
  * 
  * @param <T>
  * 
- * @author Andrew Hansen
+ * @author Andrew Hansen and Dakota Lawson
  * 
  *         This code complies with the JMU Honor Code.
  */
