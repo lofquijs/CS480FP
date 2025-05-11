@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.event.ActionEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
@@ -14,6 +15,7 @@ import java.util.Queue;
 import geography.GeographicShape;
 import geography.MapMatcher;
 import geography.MapProjection;
+import geography.RouteRecalculator;
 import gps.GPGGASentence;
 import gps.GPSObserver;
 
@@ -32,6 +34,7 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
   private GPGGASentence gpgga;
   private MapProjection proj;
   private MapMatcher mm;
+  private RouteRecalculator rr;
   private Queue<double[]> currentPath;
 
   // Used to reduce object creation.
@@ -52,7 +55,7 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
    *          -> Map Matcher used to fix point onto correct line.
    */
   public DynamicCartographyPanel(final CartographyDocument<T> model,
-      final Cartographer<T> cartographer, final MapProjection proj, final MapMatcher mm)
+      final Cartographer<T> cartographer, final MapProjection proj, final MapMatcher mm, final RouteRecalculator rr)
   {
     super(model, cartographer);
     this.proj = proj;
@@ -62,6 +65,7 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
     pointXY = new Point2D.Double();
 
     this.mm = mm;
+    this.rr = rr;
     this.currentPath = new LinkedList<>();
   }
 
@@ -134,6 +138,13 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
         km = p;
       else
         System.out.println("Map Match failed");
+      
+      // Route Recalculation
+      if (rr != null)
+      {
+        GeographicShape currentLocation = mm.getCurrentLocation();
+        rr.checkRoute(currentLocation);
+      }
 
 
       bounds = new Rectangle2D.Double(km[0] - 1.0, km[1] - 1.0, 2.0, 2.0);

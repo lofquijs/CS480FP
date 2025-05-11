@@ -48,6 +48,7 @@ import gui.DynamicCartographyPanel;
 import gui.GeocodeDialog;
 import gui.StreetSegmentCartographer;
 import geography.MapMatcher;
+import geography.RouteRecalculator;
 
 /**
  * The application for the final project of Personal Navigation Systems.
@@ -114,19 +115,22 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
 			// InputStream iss = new FileInputStream(new File("virginia-streets.str"));
 			StreetsReader sReader = new StreetsReader(iss, geographicShapes);
 			Map<String, Street> streets = new HashMap<String, Street>();
-			MapMatcher mm = new MapMatcher(geographicShapes);
 			document = sReader.read(streets);
+			network = StreetNetwork.createStreetNetwork(streets);
 			System.out.println("Read the .str file");
+			
 
 			panel = new CartographyPanel<StreetSegment>(document, new StreetSegmentCartographer());
-
-			 dynamicPanel = new DynamicCartographyPanel<StreetSegment>(document,
-			 new StreetSegmentCartographer(), proj, mm);
+			MapMatcher mm = new MapMatcher(geographicShapes);
+			RouteRecalculator routeRecalculator = new RouteRecalculator(document, this);
+			
+			dynamicPanel = new DynamicCartographyPanel<StreetSegment>(document,
+			new StreetSegmentCartographer(), proj, mm, routeRecalculator);
+			
 			frame = new JFrame("Map");
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			frame.setSize(600, 600);
 
-			network = StreetNetwork.createStreetNetwork(streets);
 
 			JMenuBar menuBar = new JMenuBar();
 			frame.setJMenuBar(menuBar);
@@ -323,6 +327,15 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
 		}
 
 		if (ac.equals(CALCULATE)) {
+		  
+		  String message = "Calculating...";
+		  
+		  // Recalculation Flag. Why is its ID 88? Because.
+		  if (evt.getID() == 88)
+		  { 
+		    originSegment = (StreetSegment) evt.getSource();
+		    message = "Recalculating!";
+		  }
 
 			// Construct the SwingWorker
 			task = new PathFindingWorker(alg, originSegment.getHead(), destinationSegment.getHead(), network, document,
@@ -334,11 +347,12 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
 
 			// Construct the dialog box
 			BackgroundTaskDialog<Map<String, StreetSegment>, String> btd = new BackgroundTaskDialog<Map<String, StreetSegment>, String>(
-					frame, "Calculating...", task);
+					frame, message, task);
 
 			// Execute
 			btd.execute();
 		}
+		
 
 		if (ac.equals(EXIT)) {
 			dialog.dispose();

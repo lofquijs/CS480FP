@@ -1,7 +1,10 @@
 package geography;
 
-import java.util.Map;
-import graph.StreetNetwork;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Iterator;
+import feature.StreetSegment;
+import gui.CartographyDocument;
 
 /**
  * Class used for checking if the user is on the correct route.
@@ -10,36 +13,43 @@ import graph.StreetNetwork;
  * 
  * This work complies with the JMU Honor Code.
  */
-
-  //My idea for this class, is it will be called every second like Map Matcher.
-  // Specifically, we will call onRoute(). If it returns false, it should recalculate.
-  // However, I have no idea where this should be. I would put it into DynamicCartoPanel.
-  // But, DynamicCartoPanel is not implemented into the FPApp yet. This is important 
-  // because it needs the Map given from a SSSP algorithm. Therefore, this class is
-  // alone and useless.
-public class RouteRecalculator 
+public class RouteRecalculator
 {
 
-  private Map<String, StreetNetwork> currentRoute;
+  private CartographyDocument<StreetSegment> model;
+  private ActionListener al;
 
   /**
    * Explicit Constructor.
-   * @param currentRoute -> Map that comes from the shortest path algorithms
+   * 
+   * @param model -> Model used to check which StreetSegments are the path.
+   * @param al -> Linked with GUI, used to send action once off route.
    */
-  public RouteRecalculator(final Map<String, StreetNetwork> currentRoute) 
+  public RouteRecalculator(final CartographyDocument<StreetSegment> model, final ActionListener al)
   {
-    this.currentRoute = currentRoute;
+    this.model = model;
+    this.al = al;
   }
   
   /**
-   * Whether or not the user is on the correct route.
+   * Checks if we are on route. If not, it sends an action to recalculate route.
    * @param shape -> Current Location
-   * @return conditional on if the user is on correct route
    */
-  public boolean onRoute(final GeographicShape shape)
+  public void checkRoute(final GeographicShape shape)
   {
     String id = shape.getID();
-    return (currentRoute.containsKey(id));
+    
+    Iterator<StreetSegment> iter = model.highlighted();
+    while (iter.hasNext())
+    {
+      StreetSegment segment = iter.next();
+      if (segment.getID().equalsIgnoreCase(id))
+        return; // Early return if on-route
+    }
+    
+    StreetSegment origin = model.getElement(id);
+    ActionEvent ae = new ActionEvent(origin, 88, "Calculate");
+    al.actionPerformed(ae);
   }
 
 }
