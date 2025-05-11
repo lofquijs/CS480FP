@@ -59,6 +59,10 @@ public class GPSReaderTask extends SwingWorker<Void, String> implements GPSSubje
     }
   }
 
+  public void waiter() throws InterruptedException {
+    this.wait(5000);
+  }
+  
   @Override
   public void addGPSObserver(final GPSObserver observer)
   {

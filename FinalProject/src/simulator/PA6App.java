@@ -44,7 +44,7 @@ public class PA6App implements Runnable
       document = sReader.read(streets);
       System.out.println("Read the .str file");
 
-      panel = new DynamicCartographyPanel<StreetSegment>(document, new StreetSegmentCartographer(), proj, mm);
+      panel = new DynamicCartographyPanel<StreetSegment>(document, new StreetSegmentCartographer(), proj, mm, null);
       frame = new JFrame("Map");
       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       frame.setSize(600, 600);

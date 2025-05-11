@@ -54,7 +54,6 @@ public class CandidateLabelList extends AbstractLabelManager implements Candidat
   @Override
   public Label getCandidateLabel()
   {
-    // TODO Auto-generated method stub
     if (candidates.isEmpty())
       return null;
 
@@ -77,6 +76,8 @@ public class CandidateLabelList extends AbstractLabelManager implements Candidat
     {
       result.add(getLabel(i));
     }
+    candidates.removeAll(candidates);
+    
     return result;
   }
 
