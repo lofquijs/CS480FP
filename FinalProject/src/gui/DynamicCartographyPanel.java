@@ -143,7 +143,15 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
       if ((rr != null) && rr.isRoute()) 
       {
         GeographicShape currentLocation = mm.getCurrentLocation();
-        rr.checkRoute(currentLocation);
+        try
+        {
+          rr.checkRoute(currentLocation);
+        }
+        catch (InterruptedException e)
+        {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
       }
 
 

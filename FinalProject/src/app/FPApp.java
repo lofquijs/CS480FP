@@ -341,7 +341,7 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
 		  }
 		  
 		  MapMatcher mm = new MapMatcher(geographicShapes);
-      RouteRecalculator routeRecalculator = new RouteRecalculator(document, this);
+      RouteRecalculator routeRecalculator = new RouteRecalculator(document, this, gpsReader);
       
       dynamicPanel = new DynamicCartographyPanel<StreetSegment>(document,
       new StreetSegmentCartographer(), proj, mm, routeRecalculator);
@@ -352,6 +352,14 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
       gpsReader.addGPSObserver(dynamicPanel);
       frame.setVisible(true);
       gpsReader.execute();
+      
+//      synchronized(gpsReader) {
+//        try {
+//          gpsReader.waiter();
+//        } catch (InterruptedException e) {
+//          e.printStackTrace();
+//        }
+//      }
       
 
 			// Construct the SwingWorker
