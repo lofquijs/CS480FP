@@ -22,7 +22,7 @@ import math.*;
  * @author Prof. David Bernstein, James Madison University
  * @version 1.0
  */
-public class CartographyPanel<T> extends JPanel implements MouseListener, MouseMotionListener
+public class SatelliteCartographyPanel<T> extends JPanel implements MouseListener, MouseMotionListener
 {
   private static final long serialVersionUID = 1L;
 
@@ -47,7 +47,7 @@ public class CartographyPanel<T> extends JPanel implements MouseListener, MouseM
    * @param cartographer
    *          The cartographer to use
    */
-  public CartographyPanel(final CartographyDocument<T> model, final Cartographer<T> cartographer,
+  public SatelliteCartographyPanel(final CartographyDocument<T> model, final Cartographer<T> cartographer,
       final MapProjection proj)
   {
     displayTransform = new DisplayCoordinatesTransformation();

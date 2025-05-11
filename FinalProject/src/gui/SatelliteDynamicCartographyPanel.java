@@ -26,7 +26,7 @@ import gps.GPSObserver;
  * 
  *         This code complies with the JMU Honor Code.
  */
-public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements GPSObserver
+public class SatelliteDynamicCartographyPanel<T> extends SatelliteCartographyPanel<T> implements GPSObserver
 {
   private static final long serialVersionUID = 1L;
   private GPGGASentence gpgga;
@@ -49,7 +49,7 @@ public class DynamicCartographyPanel<T> extends CartographyPanel<T> implements G
    * @param proj
    *          -> Map Projection used on other Methods.
    */
-  public DynamicCartographyPanel(final CartographyDocument<T> model,
+  public SatelliteDynamicCartographyPanel(final CartographyDocument<T> model,
       final Cartographer<T> cartographer, final MapProjection proj, final MapMatcher mm)
   {
     super(model, cartographer, proj);
