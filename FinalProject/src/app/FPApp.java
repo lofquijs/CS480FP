@@ -33,10 +33,7 @@ import geography.AbstractMapProjection;
 import geography.ConicalEqualAreaProjection;
 import geography.GeographicShape;
 import geography.GeographicShapesReader;
-import gps.GPGGASentence;
-import gps.GPSObserver;
 import gps.GPSReaderTask;
-import gps.GPSSimulator;
 import graph.*;
 import graph.PathFindingWorker;
 import graph.ShortestPathAlgorithm;
@@ -251,6 +248,7 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
 					document.setHighlighted(path);
 					panel.repaint();
 					task = null;
+					dynamicPanel.notifyAll();
 				} catch (InterruptedException | ExecutionException e) {
 //					JOptionPane.showMessageDialog(frame, "Interrupted", "Exception", JOptionPane.ERROR_MESSAGE);
 					e.printStackTrace();
@@ -352,7 +350,6 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
       gpsReader.addGPSObserver(dynamicPanel);
       frame.setVisible(true);
       gpsReader.execute();
-      
 //      synchronized(gpsReader) {
 //        try {
 //          gpsReader.waiter();
@@ -369,6 +366,20 @@ public class FPApp implements ActionListener, Runnable, StreetSegmentObserver, P
 			task.shouldShowIntermediateResults(false); // TODO SET TO true IF YOU WANT TO SEE INTERMEDIATE
 														// RESULTS
 			dialog.setVisible(false);
+			try
+      {
+        task.get();
+      }
+      catch (InterruptedException e)
+      {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+      catch (ExecutionException e)
+      {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
 
 			// Construct the dialog box
 			BackgroundTaskDialog<Map<String, StreetSegment>, String> btd = new BackgroundTaskDialog<Map<String, StreetSegment>, String>(
