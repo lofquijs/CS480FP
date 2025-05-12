@@ -62,7 +62,6 @@ public class SatelliteImagesReader
       {
         String imagePath = imageFilePathsIterator.next();
         String dataPath = dataFilePathsIterator.next();
-        // System.out.println(dataPath);
         SatelliteImage temp = new SatelliteImage(imagePath, dataPath, proj);
         temp.read();
         imgs.add(temp);
@@ -70,7 +69,6 @@ public class SatelliteImagesReader
     }
     catch (IOException e)
     {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }

@@ -268,21 +268,6 @@ public class SatelliteCartographyPanel<T> extends JPanel implements MouseListene
 
   }
 
-  private BufferedImage scaleImage(BufferedImage originalImage, double scaleX, double scaleY)
-  {
-    int newWidth = (int) (originalImage.getWidth() * scaleX);
-    int newHeight = (int) (originalImage.getHeight() * scaleY);
-
-    BufferedImage scaledImage = new BufferedImage(newWidth, newHeight, originalImage.getType());
-    Graphics2D g2d = scaledImage.createGraphics();
-    g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-        RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-    g2d.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
-    g2d.dispose();
-
-    return scaledImage;
-  }
-
   /**
    * Render this component.
    * 
@@ -302,11 +287,9 @@ public class SatelliteCartographyPanel<T> extends JPanel implements MouseListene
     // Update the satellite image every 30 frames
     if (counter % 30 == 0 && gpsLocation != null)
     {
-      System.out.printf("GPS Location: %.6f, %.6f%n", gpsLocation[0], gpsLocation[1]);
       SatelliteImage temp = satImgReader.findSatelliteImage(gpsLocation);
       if (temp != null && (satImg == null || temp != satImg))
       {
-        System.out.println("Loading new satellite image...");
         satImg = temp;
         img = satImg.loadImage();
       }
@@ -320,17 +303,10 @@ public class SatelliteCartographyPanel<T> extends JPanel implements MouseListene
     {
       // Get the bounds of the satellite image in map coordinates
       Rectangle2D imageBounds = satImg.getBounds();
-      // System.out.println("Satellite Image Bounds (Map Coordinates): " + imageBounds);
 
       // Transform the image bounds to screen coordinates
       Shape transformedBounds = at.createTransformedShape(imageBounds);
       Rectangle screenImageBounds = transformedBounds.getBounds();
-      // System.out.println("Transformed Bounds (Screen Coordinates): " + screenImageBounds);
-
-      // Scale the image to fit the bounds
-      // double scaleX = screenImageBounds.getWidth() / img.getWidth();
-      // double scaleY = screenImageBounds.getHeight() / img.getHeight();
-      // System.out.printf("Scaling Factors: scaleX=%.6f, scaleY=%.6f%n", scaleX, scaleY);
 
       // Draw the scaled image at the transformed bounds' location
       g2.drawImage(img, screenImageBounds.x, screenImageBounds.y, screenImageBounds.width,

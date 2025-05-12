@@ -14,6 +14,7 @@ import java.util.Queue;
 import geography.GeographicShape;
 import geography.MapMatcher;
 import geography.MapProjection;
+import geography.RouteRecalculator;
 import gps.GPGGASentence;
 import gps.GPSObserver;
 
@@ -26,12 +27,14 @@ import gps.GPSObserver;
  * 
  *         This code complies with the JMU Honor Code.
  */
-public class SatelliteDynamicCartographyPanel<T> extends SatelliteCartographyPanel<T> implements GPSObserver
+public class SatelliteDynamicCartographyPanel<T> extends SatelliteCartographyPanel<T>
+    implements GPSObserver
 {
   private static final long serialVersionUID = 1L;
   private GPGGASentence gpgga;
   private MapProjection proj;
   private MapMatcher mm;
+  private RouteRecalculator rr;
   private Queue<double[]> currentPath;
 
   // Used to reduce object creation.
@@ -50,7 +53,8 @@ public class SatelliteDynamicCartographyPanel<T> extends SatelliteCartographyPan
    *          -> Map Projection used on other Methods.
    */
   public SatelliteDynamicCartographyPanel(final CartographyDocument<T> model,
-      final Cartographer<T> cartographer, final MapProjection proj, final MapMatcher mm)
+      final Cartographer<T> cartographer, final MapProjection proj, final MapMatcher mm,
+      final RouteRecalculator rr)
   {
     super(model, cartographer, proj);
     this.proj = proj;
@@ -60,6 +64,7 @@ public class SatelliteDynamicCartographyPanel<T> extends SatelliteCartographyPan
     pointXY = new Point2D.Double();
 
     this.mm = mm;
+    this.rr = rr;
     this.currentPath = new LinkedList<>();
   }
 
@@ -90,53 +95,50 @@ public class SatelliteDynamicCartographyPanel<T> extends SatelliteCartographyPan
       ll[0] = gpgga.getLongitude();
       ll[1] = gpgga.getLatitude();
 
-//      System.out.printf("GPS Location: %.6f, %.6f%n", ll[0], ll[1]);
-      
+      // System.out.printf("GPS Location: %.6f, %.6f%n", ll[0], ll[1]);
+
       km = proj.forward(ll);
 
       // From what Dr. Bernstein has said, we must split up the points
       // Ex1:
       /*
-       * |
-       * |---• 
-       * |
-       * |          CORRECT!
-       * |---• 
-       * |
-       * |
-       * |---• 
-       * |  
+       * | |---• | | CORRECT! |---• | | |---• |
        */
-      
-      //Ex2:
+
+      // Ex2:
       /*
-       * |
-       * |---• 
-       * |---•
-       * |---•      WRONG!
-       * |---• 
-       * |---•
-       * |---•
-       * |---• 
-       * |  
+       * | |---• |---• |---• WRONG! |---• |---• |---• |---• |
        */
-      
+
       // I'm trying to do this by using a counter to add points late
       if (counter % 20 == 0)
       {
-//        System.out.println(counter);
+        // System.out.println(counter);
         currentPath.add(km);
       }
       if (currentPath.size() > 5)
         currentPath.remove();
-      
-      double[] p;
-      if ((p = mm.mapMatch(currentPath)) != null)
-        km = p;
-//      else
-//          System.out.println("Map Match failed");
 
-      // km = mm.mapMatch(currentPath);
+      double[] p = mm.mapMatch(currentPath);
+      if (p != null)
+        km = p;
+      else
+        System.out.println("Map Match failed");
+
+      // Route Recalculation
+      if ((rr != null) && rr.isRoute())
+      {
+        GeographicShape currentLocation = mm.getCurrentLocation();
+        try
+        {
+          rr.checkRoute(currentLocation);
+        }
+        catch (InterruptedException e)
+        {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+      }
 
       bounds = new Rectangle2D.Double(km[0] - 1.0, km[1] - 1.0, 2.0, 2.0);
       zoomStack.addFirst(bounds);
